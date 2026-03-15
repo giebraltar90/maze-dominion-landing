@@ -1000,7 +1000,7 @@ export default function MazeDominionLanding() {
           </div>
         </div>
         <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
-          {["Discord", "Twitter/X", "Contact"].map(link => (
+          {["Contact"].map(link => (
             <a key={link} href="#" style={{
               color: "#7a7060", textDecoration: "none",
               fontFamily: "'Share Tech Mono', monospace", fontSize: "17px",
