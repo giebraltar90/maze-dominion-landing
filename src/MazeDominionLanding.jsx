@@ -525,6 +525,15 @@ export default function MazeDominionLanding() {
               onMouseLeave={e => e.target.style.color = "#7a7060"}
             >{label}</button>
           ))}
+          <a href="/gdd.html" style={{
+            color: "#7a7060", textDecoration: "none",
+            fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
+            letterSpacing: "3px", textTransform: "uppercase", cursor: "pointer",
+            transition: "color 0.2s",
+          }}
+            onMouseEnter={e => e.target.style.color = "#c9a84c"}
+            onMouseLeave={e => e.target.style.color = "#7a7060"}
+          >GDD</a>
           <button onClick={() => scrollTo("support")} style={{
             padding: "8px 20px",
             background: "transparent", border: "1px solid #c9a84c",
@@ -1063,8 +1072,8 @@ export default function MazeDominionLanding() {
           </div>
         </div>
         <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
-          {["Contact"].map(link => (
-            <a key={link} href="#" style={{
+          {[["Contact", "#"], ["Game Design Document", "/gdd.html"]].map(([label, href]) => (
+            <a key={label} href={href} style={{
               color: "#7a7060", textDecoration: "none",
               fontFamily: "'Share Tech Mono', monospace", fontSize: "17px",
               letterSpacing: "2px", textTransform: "uppercase",
@@ -1072,7 +1081,7 @@ export default function MazeDominionLanding() {
             }}
               onMouseEnter={e => e.target.style.color = "#c9a84c"}
               onMouseLeave={e => e.target.style.color = "#7a7060"}
-            >{link}</a>
+            >{label}</a>
           ))}
         </div>
         <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", color: "#7a5f28", letterSpacing: "2px" }}>

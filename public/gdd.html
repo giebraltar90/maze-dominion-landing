@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maze Dominion — Game Design Document</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--g:#c9a84c;--gl:#f0d080;--gd:#7a5f28;--bl:#cc2222;--v:#0a0a0f;--dp:#0f0f1a;--pn:#13131f;--pl:#1a1a2e;--br:#2a2a3e;--tx:#d4c9a8;--td:#7a7060;--cy:#4ecdc4;--or:#ff6b35;--gr:#4daa57;--pu:#9b59b6}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--v);color:var(--tx);font-family:'Crimson Pro',serif;font-size:16px;line-height:1.7;overflow-x:hidden}
+#sb{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--dp);border-right:1px solid var(--br);overflow-y:auto;z-index:100;padding-bottom:60px}
+#sb::-webkit-scrollbar{width:3px}#sb::-webkit-scrollbar-thumb{background:var(--gd)}
+.sl{padding:18px 14px 12px;border-bottom:1px solid var(--br);margin-bottom:8px}
+.sl .gt{font-family:'Cinzel',serif;font-size:13px;font-weight:900;color:var(--g);letter-spacing:3px;text-transform:uppercase}
+.sl .dv{font-size:8px;color:var(--td);letter-spacing:2px;text-transform:uppercase;font-family:'Share Tech Mono',monospace;margin-top:2px}
+.ns{padding:0 10px 4px}
+.nt{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gd);padding:6px 4px 3px;display:block}
+a.ni{display:block;padding:4px 7px;color:var(--td);text-decoration:none;font-size:11px;border-radius:3px;transition:all .15s;border-left:2px solid transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+a.ni:hover,a.ni.on{color:var(--gl);background:rgba(201,168,76,.08);border-left-color:var(--g)}
+a.ni.sb{padding-left:15px;font-size:10.5px}
+#mn{margin-left:252px;min-height:100vh}
+.vb{background:var(--dp);border-bottom:1px solid var(--br);padding:7px 56px;display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--td);letter-spacing:2px}
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 72px;overflow:hidden;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(139,26,26,.15) 0%,transparent 70%),var(--v)}
+.hero::before{content:'';position:absolute;inset:-50%;background-image:linear-gradient(rgba(201,168,76,.04)1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.04)1px,transparent 1px);background-size:40px 40px;animation:gd 20s linear infinite}
+@keyframes gd{to{transform:translate(40px,40px)}}
+.htg{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--g);text-transform:uppercase;margin-bottom:14px;position:relative}
+.htg::before,.htg::after{content:'──';margin:0 8px;color:var(--gd)}
+h1{font-family:'Cinzel',serif;font-size:clamp(44px,6.5vw,84px);font-weight:900;color:var(--gl);letter-spacing:8px;text-transform:uppercase;line-height:.9;text-shadow:0 0 80px rgba(201,168,76,.3);margin-bottom:7px;position:relative}
+.hs{font-family:'Cinzel',serif;font-size:clamp(11px,1.6vw,16px);color:var(--bl);letter-spacing:9px;text-transform:uppercase;margin-bottom:30px;position:relative}
+.hl{font-size:19px;font-style:italic;color:var(--tx);max-width:680px;margin-bottom:36px;position:relative;line-height:1.5}
+.hm{display:flex;gap:36px;position:relative;flex-wrap:wrap;justify-content:center}
+.hmi{text-align:center}
+.hml{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--td);text-transform:uppercase;display:block;margin-bottom:2px}
+.hmv{font-family:'Cinzel',serif;font-size:12px;color:var(--g);letter-spacing:1px}
+.sec{padding:60px 68px;border-bottom:1px solid var(--br)}
+.sec:nth-child(even){background:rgba(19,19,31,.5)}
+.sh{display:flex;align-items:baseline;gap:16px;margin-bottom:36px;padding-bottom:14px;border-bottom:1px solid var(--br)}
+.sn{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gd);letter-spacing:2px;min-width:30px}
+h2{font-family:'Cinzel',serif;font-size:23px;font-weight:600;color:var(--gl);letter-spacing:3px;text-transform:uppercase}
+h3{font-family:'Cinzel',serif;font-size:15px;font-weight:600;color:var(--g);letter-spacing:2px;text-transform:uppercase;margin:28px 0 11px}
+h4{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cy);letter-spacing:3px;text-transform:uppercase;margin:20px 0 8px}
+p{margin-bottom:12px}
+.lead{font-size:18px;color:var(--tx);line-height:1.6;font-style:italic;margin-bottom:22px;padding-left:15px;border-left:3px solid var(--bl)}
+.cb{background:var(--pn);border:1px solid var(--br);border-left:3px solid var(--g);padding:16px 20px;margin:18px 0;border-radius:0 4px 4px 0}
+.cb.r{border-left-color:var(--bl)}.cb.b{border-left-color:var(--cy)}.cb.gr{border-left-color:var(--gr)}.cb.pu{border-left-color:var(--pu)}
+.ct{font-family:'Share Tech Mono',monospace;font-size:8.5px;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;color:var(--g)}
+.cb.r .ct{color:var(--bl)}.cb.b .ct{color:var(--cy)}.cb.gr .ct{color:var(--gr)}
+.tw{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-family:'Share Tech Mono',monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--g);padding:8px 11px;text-align:left;border-bottom:1px solid var(--gd);background:rgba(201,168,76,.05)}
+td{padding:8px 11px;border-bottom:1px solid var(--br);vertical-align:top;color:var(--tx)}
+tr:hover td{background:rgba(201,168,76,.02)}
+.tn{font-family:'Cinzel',serif;font-size:11px;color:var(--gl);letter-spacing:1px}
+.sv{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--g)}
+.sv.r{color:var(--bl)}.sv.b{color:var(--cy)}.sv.g{color:var(--gr)}.sv.o{color:var(--or)}.sv.p{color:var(--pu)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:16px 0}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:14px 0}
+.cd{background:var(--pn);border:1px solid var(--br);padding:18px;border-radius:4px;position:relative;overflow:hidden}
+.cd::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gd),transparent)}
+.cd.hc::before{background:linear-gradient(90deg,var(--bl),transparent)}
+.cd.uc::before{background:linear-gradient(90deg,var(--or),transparent)}
+.cd.tc::before{background:linear-gradient(90deg,var(--cy),transparent)}
+.cd.wc::before{background:linear-gradient(90deg,var(--gr),transparent)}
+.cd.rc::before{background:linear-gradient(90deg,var(--pu),transparent)}
+.cn{font-family:'Cinzel',serif;font-size:13px;color:var(--gl);letter-spacing:2px;margin-bottom:4px;text-transform:uppercase}
+.cr{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--td);margin-bottom:11px}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(42,42,62,.5);font-size:12.5px}
+.sl2{color:var(--td);font-size:12px}
+.ab{padding:6px 0;border-bottom:1px solid rgba(42,42,62,.5);font-size:12.5px}
+.an{font-family:'Share Tech Mono',monospace;font-size:8.5px;letter-spacing:2px;color:var(--cy);text-transform:uppercase;margin-bottom:2px}
+.an span{color:var(--td);font-size:8px}
+.tl{position:relative;padding-left:30px;margin:22px 0}
+.tl::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--gd),var(--br))}
+.ti{position:relative;margin-bottom:22px}
+.td2{position:absolute;left:-25px;top:5px;width:10px;height:10px;background:var(--gd);border:2px solid var(--g);border-radius:50%}
+.tp{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--g);margin-bottom:2px}
+.tt2{font-family:'Cinzel',serif;font-size:14px;color:var(--gl);margin-bottom:6px;letter-spacing:1px}
+.ms{background:var(--pn);border:1px solid var(--br);padding:20px;margin-bottom:12px;display:grid;grid-template-columns:96px 1fr;gap:18px;align-items:start;border-radius:4px}
+.mw{font-family:'Cinzel',serif;font-size:11px;color:var(--g);letter-spacing:2px;text-transform:uppercase;text-align:center;padding:12px 4px;background:rgba(201,168,76,.07);border:1px solid var(--gd);border-radius:4px}
+.mw .wn{display:block;font-size:22px;font-weight:900;color:var(--gl);line-height:1;margin-bottom:2px}
+.tl2{list-style:none;margin-top:8px}
+.tl2 li{padding:3px 0 3px 15px;position:relative;font-size:13px}
+.tl2 li::before{content:'→';position:absolute;left:0;color:var(--gd);font-family:'Share Tech Mono',monospace;font-size:10px}
+ul.bl{list-style:none;margin:10px 0}
+ul.bl li{padding:4px 0 4px 15px;position:relative;border-bottom:1px solid rgba(42,42,62,.35);font-size:13.5px}
+ul.bl li::before{content:'▸';position:absolute;left:0;color:var(--gd);font-size:10px}
+.dv2{display:flex;align-items:center;gap:11px;margin:28px 0;color:var(--td)}
+.dv2::before,.dv2::after{content:'';flex:1;height:1px;background:var(--br)}
+.dv2 span{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;text-transform:uppercase;white-space:nowrap}
+pre{background:rgba(0,0,0,.5);border:1px solid var(--br);padding:14px 18px;overflow-x:auto;font-family:'Share Tech Mono',monospace;font-size:10.5px;color:#88c0d0;line-height:1.6;border-radius:4px;margin:11px 0}
+.vbq{text-align:center;padding:40px 52px;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(139,26,26,.1) 0%,transparent 70%);border:1px solid var(--br);margin:28px 0;border-radius:4px}
+.vbq blockquote{font-family:'Cinzel',serif;font-size:clamp(14px,1.9vw,19px);color:var(--gl);line-height:1.6;font-weight:400;letter-spacing:1px}
+.ab2{background:var(--pl);border:1px solid var(--br);padding:22px;margin:14px 0;border-radius:4px}
+.pb{background:rgba(0,0,0,.4);border:1px solid var(--br);border-left:3px solid var(--cy);padding:11px 15px;margin:9px 0;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cy);line-height:1.5;border-radius:0 4px 4px 0}
+.pl2{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--td);margin-bottom:4px}
+.bdg{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:2px;margin:1px}
+.bg{background:rgba(201,168,76,.12);color:var(--g);border:1px solid var(--gd)}
+.br2{background:rgba(139,26,26,.18);color:#e55;border:1px solid #8b1a1a}
+.swatch{display:flex;flex-wrap:wrap;gap:7px;margin:11px 0}
+.sw{padding:11px 15px;border:1px solid #333;font-family:'Share Tech Mono',monospace;font-size:8.5px;border-radius:3px;min-width:96px}
+.badge2{display:inline-block;background:rgba(201,168,76,.1);color:var(--g);border:1px solid var(--gd);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:2px 8px;border-radius:2px;margin:2px}
+.new-badge{background:rgba(204,34,34,.15);color:#e55;border-color:#8b1a1a}
+.wc3-badge{background:rgba(78,205,196,.1);color:var(--cy);border-color:var(--cy)}
+@media(max-width:900px){#sb{display:none}#mn{margin-left:0}.sec{padding:32px 18px}.g2,.g3,.g4{grid-template-columns:1fr}.ms{grid-template-columns:1fr}.hero{padding:40px 20px}.vbq{padding:28px 18px}}
+</style>
+</head>
+<body>
+<nav id="sb">
+<div style="padding:10px 14px 0"><a href="/" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--gd);text-decoration:none;text-transform:uppercase">&larr; Back to Main Site</a></div>
+<div class="sl"><div class="gt">Maze Dominion</div><div class="dv">Game Design Document</div></div>
+<div class="ns"><span class="nt">Foundation</span>
+<a class="ni" href="#s01">01 · Vision & Identity</a>
+<a class="ni" href="#s02">02 · Design Pillars</a>
+<a class="ni" href="#s03">03 · WC3 Heritage & Fixes</a>
+</div>
+<div class="ns"><span class="nt">Core Systems</span>
+<a class="ni" href="#s04">04 · Grid & Maze</a>
+<a class="ni sb" href="#breach">↳ Breach Mechanic</a>
+<a class="ni sb" href="#baiting">↳ Breach Baiting</a>
+<a class="ni" href="#s05">05 · Wall System</a>
+<a class="ni" href="#s06">06 · Tower System</a>
+<a class="ni sb" href="#dmg">↳ Damage Towers</a>
+<a class="ni sb" href="#ctrl">↳ Control Towers</a>
+<a class="ni sb" href="#eco">↳ Economy Towers</a>
+<a class="ni sb" href="#synergies">↳ Named Combos</a>
+<a class="ni" href="#s07">07 · Unit System</a>
+<a class="ni sb" href="#unit-stats">↳ Full Unit Stats</a>
+<a class="ni sb" href="#unit-upgrades">↳ Unit Upgrade Tiers</a>
+<a class="ni sb" href="#unit-traits">↳ Traits</a>
+<a class="ni sb" href="#unit-counters">↳ Counter Matrix</a>
+<a class="ni" href="#s08">08 · Economy</a>
+<a class="ni" href="#s09">09 · Research Trees</a>
+<a class="ni" href="#s10">10 · Round Structure</a>
+</div>
+<div class="ns"><span class="nt">Heroes</span>
+<a class="ni" href="#s11">11 · Hero System</a>
+<a class="ni sb" href="#h-arch">↳ The Architect</a>
+<a class="ni sb" href="#h-war">↳ The Warlord</a>
+<a class="ni sb" href="#h-bro">↳ The Broker</a>
+<a class="ni sb" href="#h-phan">↳ The Phantom</a>
+<a class="ni sb" href="#h-sent">↳ The Sentinel</a>
+<a class="ni sb" href="#hero-syn">↳ Hero Synergies</a>
+<a class="ni sb" href="#hero-lvl">↳ Level Progression</a>
+</div>
+<div class="ns"><span class="nt">Game Modes</span>
+<a class="ni" href="#s12">12 · Mode Overview</a>
+<a class="ni sb" href="#m-1v1">↳ 1v1 Duel</a>
+<a class="ni sb" href="#m-2v2">↳ 2v2 Alliance</a>
+<a class="ni sb" href="#m-4v4">↳ 4v4 Lane Conquest</a>
+<a class="ni sb" href="#m-draft">↳ Draft Mode</a>
+<a class="ni sb" href="#m-ranked">↳ Ranked System</a>
+</div>
+<div class="ns"><span class="nt">New Feature Systems</span>
+<a class="ni" href="#s13">13 · Innovation Systems</a>
+<a class="ni sb" href="#replay">↳ Match Replay & Ghost</a>
+<a class="ni sb" href="#combos">↳ Named Combo Discovery</a>
+<a class="ni sb" href="#intel">↳ Intel & Scout System</a>
+<a class="ni sb" href="#tempo">↳ Tempo Bar</a>
+<a class="ni sb" href="#maze-share">↳ Maze Sharing</a>
+<a class="ni sb" href="#seasonal">↳ Seasonal Maps</a>
+<a class="ni sb" href="#caster">↳ Caster & Broadcast Mode</a>
+</div>
+<div class="ns"><span class="nt">Art & Production</span>
+<a class="ni" href="#s14">14 · Visual Direction</a>
+<a class="ni sb" href="#art-t">↳ Tower Concepts</a>
+<a class="ni sb" href="#art-u">↳ Unit Concepts</a>
+<a class="ni sb" href="#art-h">↳ Hero Concepts</a>
+<a class="ni sb" href="#art-v">↳ VFX Library</a>
+</div>
+<div class="ns"><span class="nt">Business & Balance</span>
+<a class="ni" href="#s15">15 · Monetization</a>
+<a class="ni" href="#s16">16 · Balance Philosophy</a>
+</div>
+</nav>
+
+<div id="mn">
+<div class="vb"><span>MAZE DOMINION · GAME DESIGN DOCUMENT</span><span>ALL SYSTEMS · ALL IMPROVEMENTS · COMPLETE</span><span>2026</span></div>
+
+<section class="hero">
+<div class="htg">Master Game Design Document</div>
+<h1>Maze<br>Dominion</h1>
+<div class="hs">Competitive Tower Defense · Real-Time Strategy · PvP</div>
+<p class="hl">"You are not reacting to waves. You are fighting another mind — and your maze is both your fortress and your weapon."</p>
+<div class="hm">
+<div class="hmi"><span class="hml">Platform</span><span class="hmv">PC → Console</span></div>
+<div class="hmi"><span class="hml">Modes</span><span class="hmv">1v1 · 2v2 · 4v4 + Draft</span></div>
+<div class="hmi"><span class="hml">Match Length</span><span class="hmv">15–30 min</span></div>
+<div class="hmi"><span class="hml">Model</span><span class="hmv">F2P · Cosmetic Only</span></div>
+<div class="hmi"><span class="hml">DNA</span><span class="hmv">WC3 LTW — Evolved</span></div>
+<div class="hmi"><span class="hml">Engine</span><span class="hmv">Unity 2022 LTS</span></div>
+</div>
+</section>
+<!-- S01 VISION -->
+<section class="sec" id="s01">
+<div class="sh"><span class="sn">01</span><h2>Vision & Identity</h2></div>
+<p class="lead">Maze Dominion is the standalone evolution of Warcraft 3's Line Tower Wars — taking the genre's greatest competitive loop and adding one mechanic that changes everything: units attack and destroy whatever blocks their path. No anti-cheat NPC. No arbitrary rules.</p>
+<div class="vbq"><blockquote>Defense and offense are inseparable.<br>Every wall you build is a decision.<br>Every unit you send is an attack and an investment.<br>The maze is not a barrier — it is a killing machine your opponent is trying to dismantle.</blockquote></div>
+<h3>What Makes Us Unique</h3>
+<div class="tw"><table>
+<tr><th>Feature</th><th>WC3 LTW</th><th>Legion TD 2</th><th>Bloons Battles</th><th style="color:var(--gl)">Maze Dominion</th></tr>
+<tr><td>Deep maze building</td><td>✓</td><td>✗</td><td>✗</td><td style="color:var(--gr)">✓ With walls + towers</td></tr>
+<tr><td>Send units → income</td><td>✓</td><td>✓</td><td>✓</td><td style="color:var(--gr)">✓</td></tr>
+<tr><td>Units breach structures</td><td>✗</td><td>✗</td><td>✗</td><td style="color:var(--gr)">✓ Core innovation</td></tr>
+<tr><td>Unit upgrade tiers</td><td>✓</td><td>Partial</td><td>Partial</td><td style="color:var(--gr)">✓ 3 tiers per unit</td></tr>
+<tr><td>Heroes in maze</td><td>✗</td><td>✗</td><td>✗</td><td style="color:var(--gr)">✓ 5 heroes</td></tr>
+<tr><td>Walls separate from towers</td><td>✗</td><td>✗</td><td>✗</td><td style="color:var(--gr)">✓ 3 tiers</td></tr>
+<tr><td>Match Replay + Ghost</td><td>✗</td><td>✗</td><td>✗</td><td style="color:var(--gr)">✓ NEW</td></tr>
+<tr><td>Hero/Tower Draft Mode</td><td>✗</td><td>✗</td><td>✗</td><td style="color:var(--gr)">✓ NEW</td></tr>
+<tr><td>Named Combo Discovery</td><td>✗</td><td>✗</td><td>✗</td><td style="color:var(--gr)">✓ NEW</td></tr>
+<tr><td>Caster Broadcast Mode</td><td>✗</td><td>✗</td><td>✗</td><td style="color:var(--gr)">✓ NEW</td></tr>
+<tr><td>Standalone PC/Console</td><td>✗ mod only</td><td>✓ Steam</td><td>✓ Mobile</td><td style="color:var(--gr)">✓ Steam EA</td></tr>
+</table></div>
+</section>
+
+<!-- S02 PILLARS -->
+<section class="sec" id="s02">
+<div class="sh"><span class="sn">02</span><h2>Design Pillars</h2></div>
+<div class="g3">
+<div class="cd"><div class="cn">Maze = Weapon</div><div class="cr">Pillar I</div><p style="font-size:13.5px">Every wall placement is a spatial decision with economic consequences. A well-placed Wood wall in front of a Cannon tower is worth more than a third Cannon tower.</p></div>
+<div class="cd"><div class="cn">Gold Is Never Safe</div><div class="cr">Pillar II</div><p style="font-size:13.5px">Three competing uses for every gold piece: rebuild breaches, send units, build new towers. This three-way tension is irreducible and must be preserved in all balance decisions.</p></div>
+<div class="cd"><div class="cn">No Passive Play</div><div class="cr">Pillar III</div><p style="font-size:13.5px">Not sending falls behind economically. Not repairing loses the maze. Every strategy requires active engagement every round. Turtling is a path to slow defeat.</p></div>
+<div class="cd"><div class="cn">Readable in 3 Seconds</div><div class="cr">Pillar IV</div><p style="font-size:13.5px">Any spectator must understand what's happening instantly. Breach events are visually loud. Tempo bar communicates advantage. Designed for streaming from the ground up.</p></div>
+<div class="cd"><div class="cn">Skill Always Wins</div><div class="cr">Pillar V</div><p style="font-size:13.5px">Comeback mechanics exist but never override superior play. The better player wins 80%+ of matches at equal mechanical level. No hard rubber-banding.</p></div>
+<div class="cd"><div class="cn">Infinite Replayability</div><div class="cr">Pillar VI</div><p style="font-size:13.5px">Named combos, seasonal maps, maze sharing, hero draft, new unit unlocks per round. Every match plays differently. Community generates the meta.</p></div>
+</div>
+</section>
+
+<!-- S03 WC3 HERITAGE -->
+<section class="sec" id="s03">
+<div class="sh"><span class="sn">03</span><h2>WC3 Heritage & What We Solved</h2></div>
+<p class="lead">Maze Dominion is built on the shoulders of Line Tower Wars, Wintermaul Wars, and Teamline Tower Wars — the greatest competitive tower defense maps ever made. We inherit their soul and fix every flaw.</p>
+
+<h3>What WC3 Tower Wars Got Perfectly Right</h3>
+<div class="g2">
+<div>
+<ul class="bl">
+<li><strong>Send units = permanent income.</strong> Every send is an investment, not just an attack. This creates the core economic tension that makes the genre strategic. We keep this exactly.</li>
+<li><strong>Unit counters built around tower weaknesses.</strong> Flying units ignore mazes. Attacking units destroy towers. Each unit type has a clear counter requiring specific tower combinations. We extend this.</li>
+<li><strong>Maze building as primary defense.</strong> Longer paths = more damage. Tight turns = more attacks per unit. Geometry is a skill. We add walls as a separate system on top.</li>
+<li><strong>Technology trees defining playstyle.</strong> Choosing Fire vs Ice vs Lightning changes how your entire maze functions. We expand this to 6 trees with exclusive T3 nodes.</li>
+<li><strong>Life stealing as win condition.</strong> Units that exit steal a life and give one to the sender. Creates visceral stakes every combat round. We keep this exactly.</li>
+<li><strong>Unit upgrade tiers during match.</strong> WC3 had tiered sends that unlocked per round. We formalize this with 3 explicit upgrade tiers per unit type. (Added to Maze Dominion.)</li>
+</ul>
+</div>
+<div>
+<div class="cb b">
+<div class="ct">WC3 Expert Meta — Core Truth</div>
+<p style="font-size:13.5px">"The goal is to make your opponent build slightly more than they had to, lowering their income relative to yours. The instant that happens, you win in a pro match."</p>
+<p style="font-size:12px;color:var(--td);margin:0">This principle is the backbone of Maze Dominion's economy design. Everything is balanced around it.</p>
+</div>
+</div>
+</div>
+
+<h3>Problems WC3 Never Solved — That We Fix</h3>
+<div class="tw"><table>
+<tr><th>WC3 Problem</th><th>WC3 Non-Solution</th><th>Why It Hurt</th><th>Maze Dominion Fix</th></tr>
+<tr><td>Blocking the path was exploitable</td><td>Anti-cheat NPC patrols and destroys blocking towers</td><td>Arbitrary, punishes new players by accident, breaks immersion, external mechanical cop</td><td class="sv g">Breach mechanic — units attack and destroy whatever blocks them. No NPC. Physics enforces it. Blocking becomes a TACTIC not an exploit.</td></tr>
+<tr><td>Brutal snowballing — behind Round 5 = you lose</td><td>None</td><td>Players dropped out mid-match constantly. Dead lobbies. No entertainment in a decided game.</td><td class="sv g">Deficit bonus (+8g/round below 5 lives). Broker hero as underdog tool. Siege units erase expensive towers (economic reset). Comebacks hard but possible.</td></tr>
+<tr><td>No dedicated wall system</td><td>Players used cheap low-HP towers as walls</td><td>Wastes gold on towers not meant for damage. No ghost interaction strategy. No breach-bait design.</td><td class="sv g">Wood/Stone/Iron walls — separate category, own HP, cost, Ghost interaction rules. Walls ARE the maze geometry.</td></tr>
+<tr><td>No unit upgrade system formalized</td><td>Some maps had tier unlocks per round</td><td>Unit progression felt arbitrary. No clear investment path. No meaningful send upgrade decisions.</td><td class="sv g">3-tier upgrade system per unit. Tier 1 = base send. Tier 2 = enhanced (costs more, unlocks Round 6+). Tier 3 = elite (unlocks Round 12+). Named per unit type.</td></tr>
+<tr><td>No information warfare</td><td>Full visibility both ways</td><td>Removed an entire strategic dimension. No bluffing. No scouting decisions.</td><td class="sv g">Scout units, Intel research tree, Phantom hero, Decoy Send, Blackout ability. Full information economy system.</td></tr>
+<tr><td>No heroes</td><td>None</td><td>Matches felt mechanical after mastery. No individual expression beyond maze design. Nothing to watch.</td><td class="sv g">5 heroes with physical presence, 4 abilities each, in-match leveling, positioning consequences.</td></tr>
+<tr><td>Mod only — no standalone</td><td>None</td><td>Genre died with WC3's playerbase. No Steam discovery, no console path, no new players.</td><td class="sv g">Standalone PC via Steam Early Access → Console port.</td></tr>
+<tr><td>Nothing to do between matches</td><td>None</td><td>No persistent hooks. No community content. No reason to return.</td><td class="sv g">Named combos (your name on a strategy forever), maze sharing, seasonal maps, Battle Pass, Discord esports circuit.</td></tr>
+<tr><td>No spectator/caster tools</td><td>None</td><td>Impossible to stream or commentate. Killed esports potential permanently.</td><td class="sv g">Caster Broadcast Mode with auto-highlights, Tempo Bar, Breach Replay, spectator overlay.</td></tr>
+<tr><td>No match review or learning tool</td><td>None</td><td>Players couldn't understand why they lost. No improvement loop beyond intuition.</td><td class="sv g">Match Replay + Ghost System: post-match overlay showing where units leaked, breach points, gold efficiency per round.</td></tr>
+</table></div>
+</section>
+<!-- S04 GRID & MAZE -->
+<section class="sec" id="s04">
+<div class="sh"><span class="sn">04</span><h2>Grid & Maze Architecture</h2></div>
+<p class="lead">Each player owns a 20×40 tile grid. Entry top-center (2 tiles wide). Exit bottom-center (2 tiles wide). The entire strategic game lives in this space — every tile decision is permanent until you repair or rebuild it.</p>
+<div class="g2">
+<div>
+<h3>Grid Specification</h3>
+<div class="tw"><table>
+<tr><th>Parameter</th><th>Value</th><th>Reason</th></tr>
+<tr><td>Dimensions</td><td class="sv">20 × 40 tiles</td><td>Wide enough for all 4 maze archetypes</td></tr>
+<tr><td>Tile world size</td><td class="sv">2m × 2m Unity units</td><td>Units never cramped, range is clear</td></tr>
+<tr><td>Entry</td><td class="sv">Row 0, columns 9–10</td><td>Centered, 2-wide, forces funneling</td></tr>
+<tr><td>Exit</td><td class="sv">Row 39, columns 9–10</td><td>Full traversal required</td></tr>
+<tr><td>Min path width</td><td class="sv">1 tile</td><td>Maximum chokepoint design allowed</td></tr>
+<tr><td>Path guarantee</td><td class="sv b">Engine-enforced always</td><td>Placement blocked if it seals exit</td></tr>
+<tr><td>Max towers/walls</td><td class="sv">Unlimited (gold-capped)</td><td>Economy is the only constraint</td></tr>
+</table></div>
+<h3>Maze Archetypes</h3>
+<div class="cd wc" style="margin-bottom:8px"><div class="cn">The Spiral</div><div class="cr">Max path length · Fast units shortcut it</div><p style="font-size:12.5px">Units wind inward then back out. Maximum tower exposure time. Vulnerable to Runners who breach the center and shortcut. Counter: Iron wall at center + Sniper towers.</p></div>
+<div class="cd wc" style="margin-bottom:8px"><div class="cn">The Funnel</div><div class="cr">Choke-point focus · Breach-bait heaven</div><p style="font-size:12.5px">Wide top narrows to 1-tile choke. Wood walls create deliberate breach bait — units stop while Cannons splash. High density = maximum splash efficiency.</p></div>
+<div class="cd wc" style="margin-bottom:8px"><div class="cn">The Gauntlet</div><div class="cr">Anti-tank · Iron walls required</div><p style="font-size:12.5px">Long parallel corridors with Iron walls. Forces Siege to commit fully. Extremely expensive. Countered by Runner swarms finding gaps.</p></div>
+<div class="cd wc"><div class="cn">The Web (Adaptive)</div><div class="cr">High skill · Multiple valid paths</div><p style="font-size:12.5px">Multiple paths through different tower types. Adapts to what opponent sends. Hardest to build, highest tournament representation.</p></div>
+</div>
+<div>
+<div class="dv2" id="breach"><span>The Breach Mechanic</span></div>
+<p class="lead">Units don't reroute around obstacles. They attack and destroy whatever is in the way, then walk through the gap. The gap stays open until manually rebuilt. This replaces the WC3 anti-cheat NPC completely.</p>
+<h4>Complete Breach Algorithm</h4>
+<pre>OnUnitBlocked(unit, blockedTile):
+  1. Run A* treating ALL tiles as passable
+  2. Find FIRST blocking tile on that path
+  3. Check unit.targetType:
+     WALL_FIRST → prefer walls
+     TOWER_FIRST → prefer towers
+     NEAREST → closest blocker
+     NONE → reroute only (Runner)
+  4. Attack target: HP -= unit.damage every attackInterval
+  5. On HP = 0: remove tile, recalculate A*, resume
+  6. Gap persists until Build Phase manual repair</pre>
+<h4>Breach Damage by Unit</h4>
+<div class="tw"><table>
+<tr><th>Unit</th><th>vs Walls</th><th>vs Towers</th><th>Speed</th></tr>
+<tr><td class="tn">Runner</td><td class="sv r">0 — no attack</td><td class="sv r">0 — no attack</td><td>—</td></tr>
+<tr><td class="tn">Breacher T1</td><td class="sv o">200/hit</td><td class="sv">60/hit</td><td>1.0s</td></tr>
+<tr><td class="tn">Siege T1</td><td class="sv">80/hit</td><td class="sv r">400/hit</td><td>1.5s</td></tr>
+<tr><td class="tn">Ghost T1</td><td class="sv b">0 vs Wood (phases)</td><td class="sv">40/hit vs Stone+</td><td>1.2s</td></tr>
+<tr><td class="tn">Swarm (each)</td><td class="sv">15/hit</td><td class="sv">10/hit</td><td>0.8s</td></tr>
+<tr><td class="tn">Titan T3</td><td class="sv r">600/hit</td><td class="sv r">600/hit</td><td>2.0s</td></tr>
+</table></div>
+<div id="baiting" class="cb gr" style="margin-top:14px">
+<div class="ct">Breach Baiting — The Core Tactic</div>
+<p style="font-size:13px"><strong>Setup:</strong> Wood wall (150 HP, 5g) blocking path. 3 Cannon towers in 2-tile radius.</p>
+<p style="font-size:13px"><strong>Result:</strong> Swarm stops to breach Wood wall. 3 Cannons fire splash AoE at stationary cluster. All 5 Swarm units die before wall breaks. Cost: 3g to repair wall. Opponent spent 30g. Net economic victory.</p>
+<p style="font-size:13px"><strong>Counter:</strong> Send Siege instead. Siege ignores walls, targets Cannons directly (400 dmg/hit vs 450 HP). Two hits = Cannon destroyed. Wood bait worthless, towers gone.</p>
+<p style="font-size:13px"><strong>Counter-counter:</strong> Frost Tower slows Siege approach. Warlord hero Snipe (instant delete). Stun Pylon freezes Siege mid-breach. This loop is the heart of the game.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- S05 WALLS -->
+<section class="sec" id="s05">
+<div class="sh"><span class="sn">05</span><h2>Wall System — Full Specification</h2></div>
+<p class="lead">Walls deal no damage. They are pure spatial tools: path shapers, kill zone creators, and sacrificial barriers. Both walls and towers cost gold — that tradeoff defines every Build Phase.</p>
+<div class="g3">
+<div class="cd wc">
+<div class="cn">Wood Wall</div><div class="cr">Tier 1 · Disposable · Breach Bait</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">5 gold</span></div>
+<div class="sr"><span class="sl2">Repair</span><span class="sv g">3 gold</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">150</span></div>
+<div class="sr"><span class="sl2">Armor</span><span class="sv">0</span></div>
+<div class="sr"><span class="sl2">Ghost Interaction</span><span class="sv r">Bypassed entirely</span></div>
+<div class="sr"><span class="sl2">Breacher hits to break</span><span class="sv r">1 hit</span></div>
+<div class="sr"><span class="sl2">Siege hits</span><span class="sv">2 hits</span></div>
+<div class="sr"><span class="sl2">Titan hits</span><span class="sv r">1 hit</span></div>
+<p style="font-size:12.5px;margin-top:10px;color:var(--td)"><strong style="color:var(--g)">Best for:</strong> Breach bait in front of Cannon towers. Rapid maze expansion early rounds.</p>
+<p style="font-size:12.5px;color:var(--td)"><strong style="color:var(--bl)">Never:</strong> As primary defense vs Ghost units (they walk through).</p>
+</div>
+<div class="cd wc">
+<div class="cn">Stone Wall</div><div class="cr">Tier 2 · Standard · Ghost Blocker</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">15 gold</span></div>
+<div class="sr"><span class="sl2">Repair</span><span class="sv g">8 gold</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">400</span></div>
+<div class="sr"><span class="sl2">Armor</span><span class="sv b">5</span></div>
+<div class="sr"><span class="sl2">Ghost Interaction</span><span class="sv r">Blocked — Ghost must attack</span></div>
+<div class="sr"><span class="sl2">Breacher hits</span><span class="sv o">2 hits (195 dmg net)</span></div>
+<div class="sr"><span class="sl2">Siege hits</span><span class="sv">5 hits</span></div>
+<div class="sr"><span class="sl2">Titan hits</span><span class="sv r">2 hits</span></div>
+<p style="font-size:12.5px;margin-top:10px;color:var(--td)"><strong style="color:var(--g)">Best for:</strong> Mid-game primary walls. Holds Breacher 2 full hits (time for 2–3 tower volleys). Blocks Ghosts.</p>
+</div>
+<div class="cd wc">
+<div class="cn">Iron Wall</div><div class="cr">Tier 3 · Fortress · Boss Stopper</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">35 gold</span></div>
+<div class="sr"><span class="span2">Repair</span><span class="sv g">18 gold</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">800</span></div>
+<div class="sr"><span class="sl2">Armor</span><span class="sv b">15</span></div>
+<div class="sr"><span class="sl2">Ghost Interaction</span><span class="sv r">Blocked</span></div>
+<div class="sr"><span class="sl2">Breacher hits</span><span class="sv o">4 hits (185 net)</span></div>
+<div class="sr"><span class="sl2">Titan hits</span><span class="sv r">2 hits (585 net)</span></div>
+<p style="font-size:12.5px;margin-top:10px;color:var(--td)"><strong style="color:var(--g)">Best for:</strong> Critical choke points. Titan speedbump — forces 4s stationary under fire. Emergency last line.</p>
+<p style="font-size:12.5px;color:var(--td)"><strong style="color:var(--bl)">Cost:</strong> 10-tile Iron wall = 350g. Use sparingly at true chokepoints only.</p>
+</div>
+</div>
+<div class="cb">
+<div class="ct">Repair Rules</div>
+Walls repaired manually during Build Phase ONLY. No mid-combat repairs. Repair cost = 50% original. Damage persists between rounds until repaired. Choosing which breaches to repair vs abandon vs accept is a core skill test every Build Phase. Wall damage shows visual cracks at 75%, 50%, 25% HP thresholds.
+</div>
+</section>
+<!-- S06 TOWERS -->
+<section class="sec" id="s06">
+<div class="sh"><span class="sn">06</span><h2>Tower System — Full Specification</h2></div>
+<p class="lead">Towers are modular weapon systems with branching upgrade paths that unlock mechanics, not just stats. They can be destroyed by Siege units — losing a tower is an economic setback that must be factored into every send decision.</p>
+
+<div id="dmg"><h3>Damage Towers</h3></div>
+<div class="g2">
+<div class="cd tc">
+<div class="cn">Arrow Tower</div><div class="cr">Single Target · Starter · Versatile</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">30g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">300</span></div>
+<div class="sr"><span class="sl2">Damage/hit</span><span class="sv">25</span></div><div class="sr"><span class="sl2">Attack speed</span><span class="sv">1.0s / 25 DPS</span></div>
+<div class="sr"><span class="sl2">Range</span><span class="sv b">5 tiles</span></div><div class="sr"><span class="sl2">Target</span><span class="sv">First (closest to exit)</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Sniper <span>(+40g)</span></div>Range 8 tiles. +20 damage (45/hit). Armor pen 10. Priority: Highest HP target.</div>
+<div class="ab"><div class="an">Branch B · Rapid Fire <span>(+35g)</span></div>Attack speed ×3 (0.33s). Damage ÷2 (12.5/hit). 37.5 DPS. Best vs Swarm/Runner.</div>
+<div class="ab"><div class="an">A-2 · Explosive Arrow <span>(+60g, requires Sniper)</span></div>Each arrow creates 1-tile splash (15 dmg). Converts to minor AoE at range.</div>
+</div>
+</div>
+<div class="cd tc">
+<div class="cn">Cannon Tower</div><div class="cr">Area Splash · Anti-Swarm · Breach Bait Core</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">70g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">450</span></div>
+<div class="sr"><span class="sl2">Damage</span><span class="sv">80 (2-tile splash radius)</span></div><div class="sr"><span class="sl2">Attack speed</span><span class="sv">2.5s</span></div>
+<div class="sr"><span class="sl2">Range</span><span class="sv b">4 tiles</span></div><div class="sr"><span class="sl2">Target</span><span class="sv">Largest cluster</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Mortar <span>(+55g)</span></div>Range 8 tiles. Fires over walls. Splash 3 tiles. Pairs with Wood bait (stationary targets).</div>
+<div class="ab"><div class="an">Branch B · Cluster Bomb <span>(+65g)</span></div>1 shot → 5 sub-munitions (30 dmg each, 1-tile splash). 150 total potential. Destroys spread formations.</div>
+<div class="ab"><div class="an">A-2 · Siege Breaker <span>(+80g, requires Mortar)</span></div>Double damage to stationary units (breach animation). Breach bait becomes lethal: 160 splash on stopped units.</div>
+</div>
+</div>
+<div class="cd tc">
+<div class="cn">Chain Tower</div><div class="cr">Multi-Target · Column Clearer</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">90g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">350</span></div>
+<div class="sr"><span class="sl2">Damage</span><span class="sv">40 → 28 → 20 (3 chains)</span></div><div class="sr"><span class="sl2">Attack speed</span><span class="sv">1.5s</span></div>
+<div class="sr"><span class="sl2">Range</span><span class="sv b">6 tiles</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Arc Storm <span>(+70g)</span></div>7 chains. Decay reduced to 80%. Best in tight corridors, single-file units.</div>
+<div class="ab"><div class="an">Branch B · Amplify Chain <span>(+60g)</span></div>Damage ASCENDS per bounce: 40 → 52 → 68. Final target takes most. With Frost slow: devastating.</div>
+</div>
+</div>
+<div class="cd tc">
+<div class="cn">Inferno Tower</div><div class="cr">DoT · Burn Spread · Late Game</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">110g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">400</span></div>
+<div class="sr"><span class="sl2">Hit damage</span><span class="sv">30</span></div><div class="sr"><span class="sl2">Burn DoT</span><span class="sv o">15/sec × 4s = 60 bonus</span></div>
+<div class="sr"><span class="sl2">Total</span><span class="sv o">90 per unit</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Conflagration <span>(+80g)</span></div>Burning units spread fire to adjacent units. Chain-burn in dense groups. Best at chokepoints.</div>
+<div class="ab"><div class="an">Branch B · Napalm <span>(+90g)</span></div>Fire persists on ground 6s after unit death. Breach points become persistent kill zones.</div>
+</div>
+</div>
+</div>
+
+<div id="ctrl"><h3>Control Towers</h3></div>
+<div class="g2">
+<div class="cd tc">
+<div class="cn">Frost Tower</div><div class="cr">Slow · AoE Pulse · Damage Multiplier</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">45g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">280</span></div>
+<div class="sr"><span class="sl2">Slow</span><span class="sv b">35% speed reduction</span></div><div class="sr"><span class="sl2">AoE pulse</span><span class="sv b">4-tile radius, 1.5s interval</span></div>
+<div class="sr"><span class="sl2">Direct damage</span><span class="sv r">0</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Deep Freeze <span>(+50g)</span></div>Slow → 65%. Full stop 0.5s on initial hit. Perfect choke pairing with Cannon.</div>
+<div class="ab"><div class="an">Branch B · Brittle Ice <span>(+45g)</span></div>Slowed units take +25% damage from all sources. Effectively boosts every tower in range by 25%.</div>
+</div>
+</div>
+<div class="cd tc">
+<div class="cn">Hex Tower</div><div class="cr">Armor Reduction · Debuff Spreader</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">55g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">260</span></div>
+<div class="sr"><span class="sl2">Armor reduction</span><span class="sv p">-30 armor for 4s</span></div><div class="sr"><span class="sl2">Stacks</span><span class="sv">Yes, up to -60 total</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Shatter <span>(+60g)</span></div>Armor reduction -50. Negative armor = bonus damage equal to deficit. Kills Armored-trait units.</div>
+<div class="ab"><div class="an">Branch B · Curse Spread <span>(+55g)</span></div>40% chance on hit to spread curse to adjacent units. Cascade debuff in dense groups.</div>
+</div>
+</div>
+<div class="cd tc">
+<div class="cn">Stun Pylon</div><div class="cr">Hard CC · Breach Stopper</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">120g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">320</span></div>
+<div class="sr"><span class="sl2">Stun</span><span class="sv p">1.5s AoE (3-tile radius)</span></div><div class="sr"><span class="sl2">Cooldown</span><span class="sv r">8s</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Extended Stun <span>(+90g)</span></div>3s stun. CD 6s. 3 stationary seconds in a choke with 4 towers = unit-clear.</div>
+<div class="ab"><div class="an">Branch B · Chain Stun <span>(+80g)</span></div>Spreads to units within 2 tiles. Cascading stun wave in single-file corridors.</div>
+</div>
+</div>
+<div class="cd tc">
+<div class="cn">Redirect Beacon</div><div class="cr">Path Manipulation · Mind Games</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">80g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">200</span></div>
+<div class="sr"><span class="sl2">Effect</span><span class="sv p">Reroutes units in range to alternate path</span></div><div class="sr"><span class="sl2">CD</span><span class="sv">12s (4s active)</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Lure <span>(+70g)</span></div>Range 5 tiles. Redirected units walk into pre-configured kill zone. Expert trap setup.</div>
+<div class="ab"><div class="an">Branch B · Confusion <span>(+65g)</span></div>Redirected units recalculate path from scratch. Can create loops in similar-looking maze sections.</div>
+</div>
+</div>
+</div>
+
+<div id="eco"><h3>Economy & Utility Towers</h3></div>
+<div class="g2">
+<div class="cd tc">
+<div class="cn">Gold Shrine</div><div class="cr">Economy · High Siege Priority Target</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">80g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">200 — fragile, place deep</span></div>
+<div class="sr"><span class="sl2">Kill bonus</span><span class="sv g">+3g per unit killed in 6-tile radius</span></div>
+<div class="sr"><span class="sl2">Passive</span><span class="sv g">+1g per income tick</span></div>
+<div class="sr"><span class="sl2">Siege priority</span><span class="sv r">HIGH — targeted first</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Treasury <span>(+70g)</span></div>+5g/kill. +3g/tick. Range 8 tiles. 10 kills/round near shrine = +50g bonus round.</div>
+<div class="ab"><div class="an">Branch B · Bounty <span>(+60g)</span></div>Leaked units still give 50% gold value. Reduces economic pain of failed defense.</div>
+</div>
+</div>
+<div class="cd tc">
+<div class="cn">Watchtower</div><div class="cr">Vision · Reveals Invisible Units</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">35g</span></div><div class="sr"><span class="sl2">HP</span><span class="sv r">180</span></div>
+<div class="sr"><span class="sl2">Vision range</span><span class="sv b">8 tiles</span></div>
+<div class="sr"><span class="sl2">Effect</span><span class="sv p">Reveals Invisible-trait units, shows HP bars</span></div>
+<div style="margin-top:10px">
+<div class="ab"><div class="an">Branch A · Early Warning <span>(+30g)</span></div>3s preview of incoming unit type before spawn. Emergency repositioning window.</div>
+<div class="ab"><div class="an">Branch B · Tactical Map <span>(+50g)</span></div>Shows opponent's current gold (±10g). Know if they're saving for Titan. Information advantage.</div>
+</div>
+</div>
+</div>
+
+<div id="synergies">
+<h3>Named Combo System — Launch Synergies</h3>
+<p>When a player first triggers a documented synergy, it is named after them globally. These are the foundational combos balanced into launch:</p>
+<div class="tw"><table>
+<tr><th>Combo Name</th><th>Components</th><th>Mechanism</th><th>Counter</th></tr>
+<tr><td class="tn">The Coffin</td><td>Frost (Deep Freeze) + Cannon + Wood Wall bait</td><td>Units freeze at bait wall. Cannon splash hits frozen stationary targets +25% Brittle bonus. ~160 total splash.</td><td>Siege (ignores walls, destroys Cannons)</td></tr>
+<tr><td class="tn">The Gauntlet</td><td>Chain (Arc Storm) ×3 + 1-tile corridor</td><td>21 chain-hits every 1.5s down single corridor. Melts any non-Boss unit instantly.</td><td>Swarm (too many targets, overwhelms chain cap)</td></tr>
+<tr><td class="tn">Thornwall</td><td>Hex (Shatter) + Arrow (Sniper) + Iron choke</td><td>-50 armor + 10 pen = units take full damage +40/hit bonus. Titan-slayer build.</td><td>Ghost units (bypass Iron walls completely)</td></tr>
+<tr><td class="tn">Napalm Maze</td><td>Inferno (Napalm) ×4 + tight corridor</td><td>Persistent fire floor: units take 40/sec ground burn + direct fire. ~170 DPS in corridor.</td><td>Armored trait (+50% HP, survives 1 extra second)</td></tr>
+<tr><td class="tn">The Web Trap</td><td>Redirect Beacon (Lure) + Stun Pylon + Cannon</td><td>Beacon redirects → Stun freezes in pocket → Cannon fires at stationary cluster. 3-tower instant-kill.</td><td>Ghost units (ignore redirect beacon)</td></tr>
+</table></div>
+</div>
+</section>
+<!-- S07 UNITS -->
+<section class="sec" id="s07">
+<div class="sh"><span class="sn">07</span><h2>Unit System — Complete Specification</h2></div>
+<p class="lead">Sending units is your primary attack AND your income investment. Each unit type answers one question: what does it do to a maze? And like WC3, every unit can be upgraded to stronger tiers before sending — at increased cost but dramatically better performance.</p>
+
+<div id="unit-stats"><h3>Base Unit Statistics (Tier 1)</h3></div>
+<div class="g3">
+<div class="cd uc">
+<div class="cn">Runner</div><div class="cr">Speed · No Attack · Gap Finder</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">8g</span></div><div class="sr"><span class="sl2">Income +</span><span class="sv g">+1/round</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">80</span></div><div class="sr"><span class="sl2">Speed</span><span class="sv b">5 tiles/sec — Very Fast</span></div>
+<div class="sr"><span class="sl2">Attack</span><span class="sv r">None — reroutes only</span></div>
+<div class="sr"><span class="sl2">Breach</span><span class="sv r">Cannot attack</span></div>
+<div class="sr"><span class="sl2">Lives stolen</span><span class="sv r">1 per exit</span></div>
+<div class="sr"><span class="sl2">Unlocked</span><span class="sv b">Round 1</span></div>
+<p style="font-size:12px;margin-top:9px;color:var(--td)"><strong style="color:var(--g)">Role:</strong> Exploits gaps. Speeds through incomplete mazes. Forces maze completeness. Countered by Arrow towers at every segment.</p>
+</div>
+<div class="cd uc">
+<div class="cn">Breacher</div><div class="cr">Wall Destroyer · Economic Attacker</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">25g</span></div><div class="sr"><span class="sl2">Income +</span><span class="sv g">+1/round</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">300</span></div><div class="sr"><span class="sl2">Armor</span><span class="sv">5</span></div>
+<div class="sr"><span class="sl2">Speed</span><span class="sv">1.5 tiles/sec</span></div>
+<div class="sr"><span class="sl2">Attack vs walls</span><span class="sv r">200/hit</span></div>
+<div class="sr"><span class="sl2">Breach target</span><span class="sv o">Walls first</span></div>
+<div class="sr"><span class="sl2">Lives stolen</span><span class="sv r">1</span></div>
+<div class="sr"><span class="sl2">Unlocked</span><span class="sv b">Round 1</span></div>
+<p style="font-size:12px;margin-top:9px;color:var(--td)"><strong style="color:var(--g)">Role:</strong> Destroys maze geometry. Forces repair gold spend. Counter: Iron walls (4 hits), Frost Tower slow.</p>
+</div>
+<div class="cd uc">
+<div class="cn">Siege</div><div class="cr">Tower Killer · Investment Destroyer</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">60g</span></div><div class="sr"><span class="sl2">Income +</span><span class="sv g">+1/round</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">600</span></div><div class="sr"><span class="sl2">Armor</span><span class="sv">20</span></div>
+<div class="sr"><span class="sl2">Speed</span><span class="sv">0.8 tiles/sec</span></div>
+<div class="sr"><span class="sl2">Attack vs towers</span><span class="sv r">400/hit</span></div>
+<div class="sr"><span class="sl2">Breach target</span><span class="sv r">Towers first</span></div>
+<div class="sr"><span class="sl2">Lives stolen</span><span class="sv r">2 on exit</span></div>
+<div class="sr"><span class="sl2">Unlocked</span><span class="sv b">Round 6</span></div>
+<p style="font-size:12px;margin-top:9px;color:var(--td)"><strong style="color:var(--g)">Role:</strong> Economic devastation. Destroys towers worth 3–5× its cost. Targets Gold Shrines with HIGH priority. Counter: Frost + Sniper + Stun Pylon + Warlord Snipe.</p>
+</div>
+<div class="cd uc">
+<div class="cn">Ghost</div><div class="cr">Wall Phaser · Counter-Meta</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">20g</span></div><div class="sr"><span class="sl2">Income +</span><span class="sv g">+1/round</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">150</span></div>
+<div class="sr"><span class="sl2">Speed</span><span class="sv b">2.5 tiles/sec</span></div>
+<div class="sr"><span class="sl2">Wood interaction</span><span class="sv b">Phases through — ignores</span></div>
+<div class="sr"><span class="sl2">Stone+ interaction</span><span class="sv r">Blocked (40/hit attack)</span></div>
+<div class="sr"><span class="sl2">Unlocked</span><span class="sv b">Round 4</span></div>
+<p style="font-size:12px;margin-top:9px;color:var(--td)"><strong style="color:var(--g)">Role:</strong> Counters Wood-heavy mazes. Shortcuts through cheap infrastructure. Counter: Stone/Iron walls at critical points, Watchtower to reveal.</p>
+</div>
+<div class="cd uc">
+<div class="cn">Swarm (×5)</div><div class="cr">AoE Drain · Cheap Pressure</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">30g (pack of 5)</span></div><div class="sr"><span class="sl2">Income +</span><span class="sv g">+1/round (pack = 1)</span></div>
+<div class="sr"><span class="sl2">HP each</span><span class="sv">40</span></div>
+<div class="sr"><span class="sl2">Speed</span><span class="sv b">3.5 tiles/sec</span></div>
+<div class="sr"><span class="sl2">Attack each</span><span class="sv">15 vs walls, 10 vs towers</span></div>
+<div class="sr"><span class="sl2">Lives stolen</span><span class="sv r">1 per unit = up to 5</span></div>
+<div class="sr"><span class="sl2">Unlocked</span><span class="sv b">Round 1</span></div>
+<p style="font-size:12px;margin-top:9px;color:var(--td)"><strong style="color:var(--g)">Role:</strong> Forces AoE coverage. 5 simultaneous lives at risk. Counter: Single upgraded Cannon Tower deletes entire pack.</p>
+</div>
+<div class="cd uc">
+<div class="cn">Titan</div><div class="cr">Boss Unit · Game Ender · Round 12+</div>
+<div class="sr"><span class="sl2">Cost</span><span class="sv g">200g</span></div><div class="sr"><span class="sl2">Income +</span><span class="sv g">+3/round</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv r">4000</span></div><div class="sr"><span class="sl2">Armor</span><span class="sv r">40</span></div>
+<div class="sr"><span class="sl2">Speed</span><span class="sv">0.5 tiles/sec</span></div>
+<div class="sr"><span class="sl2">Attack</span><span class="sv r">600/hit vs everything</span></div>
+<div class="sr"><span class="sl2">Lives stolen</span><span class="sv r">5 on exit</span></div>
+<div class="sr"><span class="sl2">Unlocked</span><span class="sv r">Round 12</span></div>
+<p style="font-size:12px;margin-top:9px;color:var(--td)"><strong style="color:var(--g)">Role:</strong> Match-ending pressure. Requires hero ability activation + full tower DPS. Counter: Thornwall combo, Warlord Snipe, Stun Pylon chain, Architect Seal, Iron walls.</p>
+</div>
+</div>
+
+<div id="unit-upgrades">
+<div class="dv2"><span>Unit Upgrade Tiers — WC3 DNA Formalized</span></div>
+<p class="lead">Like WC3 Tower Wars, every unit can be upgraded to stronger tiers before sending. Higher tiers cost more gold but unlock dramatically better combat stats, new behaviors, and bonus income on send. This creates a second layer of economic decisions every Send Phase.</p>
+<div class="cb b">
+<div class="ct">How Unit Upgrades Work</div>
+In the Send Phase, select any unit type. Click "Upgrade" once (Tier 2) or twice (Tier 3) before queueing the send. Cost is additive — you pay the base cost plus upgrade cost. Higher tiers are locked until the round milestone is reached. You can still send T1 units after T2/T3 unlock — sometimes a cheap T1 Runner is the right call over an expensive T3.
+</div>
+
+<h3>Runner — Upgrade Tiers</h3>
+<div class="tw"><table>
+<tr><th>Tier</th><th>Name</th><th>Cost</th><th>Unlock</th><th>HP</th><th>Speed</th><th>Special</th><th>Income+</th></tr>
+<tr><td><span class="bdg bg">T1</span></td><td class="tn">Runner</td><td class="sv g">8g</td><td class="sv b">Round 1</td><td class="sv">80</td><td class="sv b">5 tiles/s</td><td>Basic gap exploiter</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg bg">T2</span></td><td class="tn">Dasher</td><td class="sv g">18g (+10)</td><td class="sv b">Round 6</td><td class="sv">150</td><td class="sv b">7 tiles/s</td><td>Leaves speed boost aura — other units in 1-tile radius +20% speed</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg br2">T3</span></td><td class="tn">Phantom Runner</td><td class="sv g">35g (+17)</td><td class="sv r">Round 12</td><td class="sv">220</td><td class="sv b">9 tiles/s</td><td>Invisible until within 1 tile of tower. Cannot be targeted by most abilities.</td><td class="sv g">+2</td></tr>
+</table></div>
+
+<h3>Breacher — Upgrade Tiers</h3>
+<div class="tw"><table>
+<tr><th>Tier</th><th>Name</th><th>Cost</th><th>Unlock</th><th>HP</th><th>Wall Dmg</th><th>Special</th><th>Income+</th></tr>
+<tr><td><span class="bdg bg">T1</span></td><td class="tn">Breacher</td><td class="sv g">25g</td><td class="sv b">Round 1</td><td class="sv">300</td><td class="sv r">200/hit</td><td>Wall-first targeting</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg bg">T2</span></td><td class="tn">Demolisher</td><td class="sv g">50g (+25)</td><td class="sv b">Round 6</td><td class="sv">500</td><td class="sv r">320/hit</td><td>On wall destroy: adjacent walls take 80 splash damage. Chain-breach potential.</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg br2">T3</span></td><td class="tn">Cataclysm</td><td class="sv g">90g (+40)</td><td class="sv r">Round 12</td><td class="sv">800</td><td class="sv r">500/hit</td><td>Destroys Stone wall in 1 hit. Iron wall in 2 hits. On death: explodes (150 dmg 2-tile radius to structures).</td><td class="sv g">+2</td></tr>
+</table></div>
+
+<h3>Siege — Upgrade Tiers</h3>
+<div class="tw"><table>
+<tr><th>Tier</th><th>Name</th><th>Cost</th><th>Unlock</th><th>HP</th><th>Tower Dmg</th><th>Special</th><th>Income+</th></tr>
+<tr><td><span class="bdg bg">T1</span></td><td class="tn">Siege</td><td class="sv g">60g</td><td class="sv b">Round 6</td><td class="sv">600</td><td class="sv r">400/hit</td><td>Tower-first. Targets Gold Shrines with HIGH priority.</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg bg">T2</span></td><td class="tn">Destroyer</td><td class="sv g">110g (+50)</td><td class="sv b">Round 10</td><td class="sv">950</td><td class="sv r">600/hit</td><td>Disables tower for 3s before attacking (no fire, no target). Creates guaranteed dead zone.</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg br2">T3</span></td><td class="tn">Annihilator</td><td class="sv g">190g (+80)</td><td class="sv r">Round 14</td><td class="sv">1600</td><td class="sv r">800/hit</td><td>Destroys Cannon in 1 hit. On each tower kill: gains +10% attack speed (stacks). Drops loot: 30g on ground for opponent to see (psychological).</td><td class="sv g">+3</td></tr>
+</table></div>
+
+<h3>Ghost — Upgrade Tiers</h3>
+<div class="tw"><table>
+<tr><th>Tier</th><th>Name</th><th>Cost</th><th>Unlock</th><th>HP</th><th>Wall Bypass</th><th>Special</th><th>Income+</th></tr>
+<tr><td><span class="bdg bg">T1</span></td><td class="tn">Ghost</td><td class="sv g">20g</td><td class="sv b">Round 4</td><td class="sv">150</td><td class="sv b">Wood only</td><td>Phased movement through Wood walls</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg bg">T2</span></td><td class="tn">Wraith</td><td class="sv g">40g (+20)</td><td class="sv b">Round 8</td><td class="sv">280</td><td class="sv b">Wood + Stone</td><td>Phases through Stone walls. Visible for only 0.3s when adjacent to a tower.</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg br2">T3</span></td><td class="tn">Spectre</td><td class="sv g">75g (+35)</td><td class="sv r">Round 13</td><td class="sv">420</td><td class="sv b">All walls including Iron</td><td>Completely immune to Frost slow. Cannot be targeted by hero abilities. Watchtower can detect but cannot reveal to towers (towers still can't target without vision).</td><td class="sv g">+2</td></tr>
+</table></div>
+
+<h3>Swarm — Upgrade Tiers</h3>
+<div class="tw"><table>
+<tr><th>Tier</th><th>Name</th><th>Cost</th><th>Unlock</th><th>Pack Size</th><th>HP each</th><th>Special</th><th>Income+</th></tr>
+<tr><td><span class="bdg bg">T1</span></td><td class="tn">Swarm</td><td class="sv g">30g</td><td class="sv b">Round 1</td><td class="sv">×5 units</td><td class="sv">40</td><td>Basic cluster</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg bg">T2</span></td><td class="tn">Plague Swarm</td><td class="sv g">55g (+25)</td><td class="sv b">Round 7</td><td class="sv">×7 units</td><td class="sv">80</td><td>Units killed by towers spread disease: adjacent units take 10 dmg/sec for 4s. Disease is visible (green glow).</td><td class="sv g">+1</td></tr>
+<tr><td><span class="bdg br2">T3</span></td><td class="tn">Death Swarm</td><td class="sv g">100g (+45)</td><td class="sv r">Round 13</td><td class="sv">×10 units</td><td class="sv">130</td><td>Explode on death: 25 dmg 1-tile radius. 10 simultaneous micro-explosions devastates clustered towers. Lives stolen: 1 per unit = up to 10.</td><td class="sv g">+2</td></tr>
+</table></div>
+
+<h3>Titan — Upgrade Tiers</h3>
+<div class="tw"><table>
+<tr><th>Tier</th><th>Name</th><th>Cost</th><th>Unlock</th><th>HP</th><th>Armor</th><th>Special</th><th>Income+</th></tr>
+<tr><td><span class="bdg bg">T1</span></td><td class="tn">Titan</td><td class="sv g">200g</td><td class="sv r">Round 12</td><td class="sv r">4000</td><td class="sv r">40</td><td>Match-ender. Steals 5 lives on exit.</td><td class="sv g">+3</td></tr>
+<tr><td><span class="bdg br2">T2</span></td><td class="tn">War Titan</td><td class="sv g">340g (+140)</td><td class="sv r">Round 16</td><td class="sv r">6000</td><td class="sv r">60</td><td>Cannot be targeted by Warlord's Snipe. On each tower kill: heals 200 HP. Steals 7 lives on exit.</td><td class="sv g">+4</td></tr>
+<tr><td><span class="bdg br2">T3</span></td><td class="tn">Ancient Colossus</td><td class="sv g">520g (+180)</td><td class="sv r">Round 20</td><td class="sv r">9000</td><td class="sv r">80</td><td>Immune to all hero abilities. Immune to Stun. On death: explodes (300 dmg 4-tile radius to all structures). Steals 10 lives on exit. Game-ending send.</td><td class="sv g">+5</td></tr>
+</table></div>
+</div>
+
+<div id="unit-traits">
+<h3>Unit Traits — Applied Before Send</h3>
+<div class="tw"><table>
+<tr><th>Trait</th><th>Cost</th><th>Effect</th><th>Best On</th><th>Counter</th></tr>
+<tr><td class="tn">Armored</td><td class="sv g">+15g</td><td>+50% HP, +10 armor</td><td>Breacher, Siege</td><td>Hex Shatter (-50 armor erases bonus)</td></tr>
+<tr><td class="tn">Enraged</td><td class="sv g">+20g</td><td>+75% attack speed vs structures only</td><td>Breacher T2+</td><td>Kill before maze — Sniper at entry</td></tr>
+<tr><td class="tn">Spectral</td><td class="sv g">+30g</td><td>Bypasses Stone walls (not Iron)</td><td>Ghost T1</td><td>Iron walls at all criticals</td></tr>
+<tr><td class="tn">Pack</td><td class="sv g">+10g</td><td>Swarm +3 extra units</td><td>Swarm T1</td><td>Still one Cannon volley to clear</td></tr>
+<tr><td class="tn">Regenerating</td><td class="sv g">+25g</td><td>+15 HP/sec while moving</td><td>Titan T1, Runner T2</td><td>Frost slow — regen negligible while stopped</td></tr>
+<tr><td class="tn">Invisible</td><td class="sv g">+40g</td><td>Untargetable until within 2 tiles of Watchtower</td><td>Runner T1, Ghost T1</td><td>Watchtower required. Early Warning upgrade gives 3s preview.</td></tr>
+<tr><td class="tn">Explosive Death</td><td class="sv g">+35g</td><td>Explodes on death: 60 dmg 2-tile radius to structures</td><td>Breacher T1+, Swarm T1</td><td>Kill units away from towers — Mortar at range</td></tr>
+<tr><td class="tn">Reinforced</td><td class="sv g">+45g</td><td>HP regen at 50% (20/sec). Immune to Snipe.</td><td>Titan T1, Siege T2</td><td>Sustained DPS — Chain + Arrow combination</td></tr>
+</table></div>
+</div>
+
+<div id="unit-counters">
+<h3>Unit vs Tower Counter Matrix</h3>
+<div class="tw"><table>
+<tr><th>↓ Tower  Unit →</th><th>Runner</th><th>Breacher</th><th>Siege</th><th>Ghost</th><th>Swarm</th><th>Titan</th></tr>
+<tr><td class="tn">Arrow Tower</td><td class="sv g">✓✓ Great</td><td class="sv">◎ Fair</td><td class="sv r">✗ Slow kill</td><td class="sv g">✓ Good</td><td class="sv">◎ Fair</td><td class="sv r">✗ Weak</td></tr>
+<tr><td class="tn">Cannon Tower</td><td class="sv">◎ Fair</td><td class="sv g">✓ Good</td><td class="sv r">✗ Siege prefers towers</td><td class="sv">◎ Fair</td><td class="sv g">✓✓ Best</td><td class="sv">◎ Fair</td></tr>
+<tr><td class="tn">Chain Tower</td><td class="sv g">✓ Good</td><td class="sv">◎ Fair</td><td class="sv r">✗ High armor</td><td class="sv g">✓ Good</td><td class="sv g">✓✓ Best</td><td class="sv">◎ Fair</td></tr>
+<tr><td class="tn">Inferno Tower</td><td class="sv g">✓ Burn kills</td><td class="sv">◎ Fair</td><td class="sv">◎ Fair</td><td class="sv g">✓ Good</td><td class="sv g">✓✓ Spread</td><td class="sv">◎ Fair</td></tr>
+<tr><td class="tn">Frost Tower</td><td class="sv g">✓✓ Best</td><td class="sv g">✓ Slows breach</td><td class="sv g">✓ Crucial</td><td class="sv g">✓ Good</td><td class="sv g">✓ Good</td><td class="sv g">✓ Essential</td></tr>
+<tr><td class="tn">Hex Tower</td><td class="sv">◎ Fair</td><td class="sv g">✓ Good</td><td class="sv g">✓✓ -50 armor</td><td class="sv">◎ Fair</td><td class="sv">◎ Fair</td><td class="sv g">✓✓ Best</td></tr>
+<tr><td class="tn">Stun Pylon</td><td class="sv g">✓ Good</td><td class="sv g">✓ Stops breach</td><td class="sv g">✓✓ Stops breach</td><td class="sv g">✓ Good</td><td class="sv g">✓ Good</td><td class="sv g">✓✓ Crucial</td></tr>
+<tr><td class="tn">Iron Wall</td><td class="sv r">✗ Runner ignores walls</td><td class="sv g">✓✓ 4 hits required</td><td class="sv">◎ Siege ignores</td><td class="sv g">✓ Blocks Ghost</td><td class="sv">◎ Fair</td><td class="sv g">✓ Speedbump</td></tr>
+</table></div>
+</div>
+</section>
+<!-- S08 ECONOMY -->
+<section class="sec" id="s08">
+<div class="sh"><span class="sn">08</span><h2>Economy System — Full Mathematics</h2></div>
+<p class="lead">The economy is the game. Every gold decision compounds across 20+ rounds. Understanding the math gives a systematic edge. The player who avoids overbuilding consistently will win.</p>
+<div class="g2">
+<div>
+<h3>Gold Sources</h3>
+<div class="tw"><table>
+<tr><th>Source</th><th>Gold</th><th>Notes</th></tr>
+<tr><td>Starting gold</td><td class="sv g">60g</td><td>Every player, every match</td></tr>
+<tr><td>Kill: Runner T1/T2/T3</td><td class="sv g">8 / 12 / 18g</td><td>Higher tiers worth more</td></tr>
+<tr><td>Kill: Breacher T1/T2/T3</td><td class="sv g">20 / 35 / 60g</td><td>Big reward for stopping T3 Cataclysm</td></tr>
+<tr><td>Kill: Siege T1/T2/T3</td><td class="sv g">50 / 85 / 150g</td><td>Worth enormous defending</td></tr>
+<tr><td>Kill: Ghost T1/T2/T3</td><td class="sv g">15 / 28 / 50g</td><td>Spectre is expensive to kill</td></tr>
+<tr><td>Kill: Swarm pack T1/T2/T3</td><td class="sv g">25 / 40 / 60g</td><td>Full pack kill values</td></tr>
+<tr><td>Kill: Titan T1/T2/T3</td><td class="sv g">180 / 280 / 420g</td><td>Ancient Colossus kill = 420g windfall</td></tr>
+<tr><td>Income tick (per round)</td><td class="sv g">15g base + income rate</td><td>End of every Combat Phase</td></tr>
+<tr><td>Send income bonus</td><td class="sv g">+1g/round (T1/T2), +2/3g/round (T3)</td><td>Permanent, stacks forever</td></tr>
+<tr><td>Deficit bonus (&lt;5 lives)</td><td class="sv g">+8g/round</td><td>Mild comeback mechanic</td></tr>
+<tr><td>Gold Shrine (per kill in range)</td><td class="sv g">+3g (or +5g upgraded)</td><td>Additive with kill gold</td></tr>
+</table></div>
+</div>
+<div>
+<h3>Income Scaling Example</h3>
+<div class="tw"><table>
+<tr><th>Round</th><th>Cumul. Sends</th><th>Income Tick</th><th>Strategy</th></tr>
+<tr><td>1</td><td>0</td><td class="sv g">15g</td><td>Basic Arrow + Wood walls</td></tr>
+<tr><td>5</td><td>8</td><td class="sv g">23g</td><td>First research tier, Frost Tower</td></tr>
+<tr><td>8</td><td>15</td><td class="sv g">30g</td><td>T2 research, Chain Tower</td></tr>
+<tr><td>12</td><td>30</td><td class="sv g">45g</td><td>Titan available, T3 research</td></tr>
+<tr><td>16</td><td>48</td><td class="sv g">63g</td><td>War Titan (T2) available</td></tr>
+<tr><td>20</td><td>68</td><td class="sv g">83g</td><td>Sudden Death, doubled income</td></tr>
+</table></div>
+<div class="cb r" style="margin-top:12px">
+<div class="ct">The Overbuilding Trap</div>
+<p style="font-size:13px">If opponent sends 30g of Runners and you spend 80g adding towers that weren't needed — you are 50g behind in net economy. Expert play: identify minimum required response to each send. Spend exactly that. Bank the rest for income sends. This compounds dramatically over 20 rounds.</p>
+</div>
+</div>
+</div>
+<h3>Tempo Bar</h3>
+<p>Visible HUD bar in screen center (spectator-facing) + small corner version per player. Calculated every round. Cosmetic only — no mechanical effect.</p>
+<pre>Tempo Score = (My Income Rate - Opp Income Rate)
+            + (My Lives - Opp Lives) × 2
+            + (Towers I Destroyed - Towers Opp Destroyed) × 3
+Positive → bar fills toward opponent (winning)
+Negative → bar fills toward you (behind)</pre>
+</section>
+
+<!-- S09 RESEARCH -->
+<section class="sec" id="s09">
+<div class="sh"><span class="sn">09</span><h2>Research Trees — Complete Specification</h2></div>
+<p class="lead">Research is match-based only — no permanent progression. All choices are visible to opponents after purchase, enabling counter-research. T3 nodes marked ★ are mutually exclusive.</p>
+<div class="g3">
+<div class="cd rc"><div class="cn">Destruction</div><div class="cr">Fire · Raw Damage</div>
+<div class="ab"><div class="an">T1 · Inferno Edge <span>50g</span></div>+15% damage to all damage towers</div>
+<div class="ab"><div class="an">T2 · Conflagration <span>120g</span></div>Burning units spread fire to adjacent units within 1 tile</div>
+<div class="ab"><div class="an">T2 · Overload <span>100g</span></div>Towers that kill a unit reload instantly (once per unit)</div>
+<div class="ab"><div class="an">T3 · Hellfire ★ <span>250g</span></div>All towers fire 2× rate for 1 round (90s CD)</div>
+<div class="ab"><div class="an">T3 · Immolation ★ <span>300g</span></div>Destroyed towers explode: 200 dmg 3-tile radius. Turns loss into weapon.</div>
+</div>
+<div class="cd rc"><div class="cn">Control</div><div class="cr">Ice · Slow &amp; Freeze</div>
+<div class="ab"><div class="an">T1 · Permafrost <span>50g</span></div>Frost Tower slow: 35% → 50%</div>
+<div class="ab"><div class="an">T2 · Crystallize <span>120g</span></div>Frozen units killed shatter: 80 dmg 1.5-tile radius</div>
+<div class="ab"><div class="an">T2 · Glacial Maze <span>110g</span></div>Walls adjacent to Frost towers +30% HP</div>
+<div class="ab"><div class="an">T3 · Absolute Zero ★ <span>280g</span></div>Once per match: freeze ALL enemy units 4 seconds (unlimited range)</div>
+<div class="ab"><div class="an">T3 · Permafrost Field ★ <span>240g</span></div>Slow applies to breach attacks too — slowed units deal 35% less structural damage</div>
+</div>
+<div class="cd rc"><div class="cn">Fortification</div><div class="cr">Earth · Wall Power</div>
+<div class="ab"><div class="an">T1 · Reinforced <span>40g</span></div>All walls +25% HP permanently. Wood→188, Stone→500, Iron→1000</div>
+<div class="ab"><div class="an">T2 · Quick Repair <span>100g</span></div>Repair costs -35%. Wood→2g, Stone→5g, Iron→12g</div>
+<div class="ab"><div class="an">T2 · Barbed Walls <span>130g</span></div>Units attacking walls take 20 dmg/hit back</div>
+<div class="ab"><div class="an">T3 · Indestructible ★ <span>300g</span></div>Designate ONE wall tile as permanently indestructible this match</div>
+<div class="ab"><div class="an">T3 · Living Walls ★ <span>260g</span></div>Damaged walls regenerate 5 HP/sec during non-combat phases</div>
+</div>
+<div class="cd rc"><div class="cn">Economy</div><div class="cr">Gold · Income Scaling</div>
+<div class="ab"><div class="an">T1 · Bounty <span>60g</span></div>+2g per unit killed anywhere in maze (not just Shrine range)</div>
+<div class="ab"><div class="an">T2 · Interest <span>140g</span></div>+3% of total gold banked at each income tick</div>
+<div class="ab"><div class="an">T2 · War Economy <span>120g</span></div>Unit send costs -15%</div>
+<div class="ab"><div class="an">T3 · Market Crash ★ <span>350g</span></div>Reduce opponent income tick by 40% for 3 rounds (90s CD)</div>
+<div class="ab"><div class="an">T3 · Compound Interest ★ <span>320g</span></div>Income bonus per send doubled retroactively: each send = +2/round instead of +1</div>
+</div>
+<div class="cd rc"><div class="cn">Sabotage</div><div class="cr">Dark · Structure Destruction</div>
+<div class="ab"><div class="an">T1 · Corrosion <span>70g</span></div>Breacher units +30% damage to towers</div>
+<div class="ab"><div class="an">T2 · Acid Residue <span>150g</span></div>Siege units leave acid pool (20/sec, 8s) on destroyed tower tile</div>
+<div class="ab"><div class="an">T2 · Chain Demolition <span>160g</span></div>Destroyed towers: 25% chance to deal 50 dmg to adjacent tower</div>
+<div class="ab"><div class="an">T3 · Demolition Expert ★ <span>300g</span></div>All breach dmg to towers +50%. 50% Chain Demolition chance always.</div>
+<div class="ab"><div class="an">T3 · Saboteur ★ <span>350g</span></div>Once/round: send invisible Saboteur that disables 1 tower for 1 full round</div>
+</div>
+<div class="cd rc"><div class="cn">Intel</div><div class="cr">Shadow · Information War</div>
+<div class="ab"><div class="an">T1 · Scouts <span>30g</span></div>Unlock Scout unit (10g). Reveals 4×4 section of opponent maze 20s</div>
+<div class="ab"><div class="an">T2 · Surveillance <span>90g</span></div>See opponent's current gold (±10g) at round end</div>
+<div class="ab"><div class="an">T2 · Intercept <span>110g</span></div>5s preview of opponent's unit queue before their Send Phase ends</div>
+<div class="ab"><div class="an">T3 · Dark Ops ★ <span>240g</span></div>Your sends hidden from opponent's view 3s after spawn</div>
+<div class="ab"><div class="an">T3 · Blackout ★ <span>280g</span></div>Once: disable opponent's full maze vision 6 seconds. Opponent can't target abilities.</div>
+</div>
+</div>
+</section>
+
+<!-- S10 ROUNDS -->
+<section class="sec" id="s10">
+<div class="sh"><span class="sn">10</span><h2>Round Structure — Full Specification</h2></div>
+<div class="tl">
+<div class="ti"><div class="td2"></div>
+<div class="tp">Phase 1 · 30 Seconds</div><div class="tt2">Build Phase</div>
+<p>Place walls, towers, repair breaches (50% cost), purchase research, reposition hero. Path validation every placement — red flash if sealing exit. You can sell towers at 60% value. Cannot repair mid-combat under any circumstances.</p>
+<div class="cb b" style="margin-top:10px"><div class="ct">Key Decision Every Round</div>Repair last breach (defensive) vs build new tower (offensive) vs save for send (income). You rarely have gold for all three. This three-way tension is the game.</div>
+</div>
+<div class="ti"><div class="td2"></div>
+<div class="tp">Phase 2 · 15 Seconds</div><div class="tt2">Send Phase</div>
+<p>Select units. Choose tier (T1/T2/T3). Apply traits. Time your sends strategically — Siege after opponent spends gold rebuilding. Bluff: queue units, cancel last second, bait over-building. In 2v2/4v4: coordinate sends with partner via ping system.</p>
+</div>
+<div class="ti"><div class="td2"></div>
+<div class="tp">Phase 3 · Variable 10–120s</div><div class="tt2">Combat Phase</div>
+<p>All queued units spawn. Pathfind, breach, fight toward exit. Heroes activate abilities. Towers fire. No actions except hero abilities on CD. Phase ends when all units dead or exited. No sends = 0 seconds. Titan + full send = up to 90s.</p>
+</div>
+<div class="ti"><div class="td2"></div>
+<div class="tp">Phase 4 · 3 Seconds</div><div class="tt2">Income Phase</div>
+<p>Gold ticks (15 + income rate). Lives updated. Round counter increments. Escalation unlocks checked. Tempo bar updates. Win condition checked. New round begins immediately.</p>
+</div>
+</div>
+<h3>Round Escalation Milestones</h3>
+<div class="tw"><table>
+<tr><th>Round</th><th>Unlocks</th><th>Gameplay Shift</th></tr>
+<tr><td class="sv b">1–3</td><td>Runner T1, Breacher T1, Swarm T1, Arrow, Cannon, Frost, Wood/Stone walls</td><td>Early maze construction, basic sends, learning breach</td></tr>
+<tr><td class="sv b">4</td><td>Ghost T1</td><td>Ghost counters Wood-heavy mazes. Upgrade Stone walls.</td></tr>
+<tr><td class="sv b">5</td><td>Research Tier 1 unlocks, Hex Tower, Redirect Beacon</td><td>First strategic research commitment</td></tr>
+<tr><td class="sv b">6</td><td>Siege T1, Chain Tower, Iron Wall, Unit Tier 2 (T2 upgrades)</td><td>Economic attacks begin. T2 units viable. Iron walls needed.</td></tr>
+<tr><td class="sv b">7</td><td>Swarm T2 (Plague), Ghost T2 (Wraith)</td><td>Upgraded sends available. Plague Swarm changes AoE calculus.</td></tr>
+<tr><td class="sv b">8</td><td>Research Tier 2, Traits unlocked, Inferno Tower, Stun Pylon</td><td>Full trait system active. Complex sends begin.</td></tr>
+<tr><td class="sv b">10</td><td>Siege T2 (Destroyer), Runner T2 (Dasher), Watchtower</td><td>T2 Siege tier. Destroyer's disable is game-changing.</td></tr>
+<tr><td class="sv b">12</td><td>Titan T1, Research Tier 3 (Exclusive), Breacher T2 (Demolisher)</td><td>Match-ending threat available. Hard research commitment.</td></tr>
+<tr><td class="sv b">13</td><td>Ghost T3 (Spectre), Swarm T3 (Death Swarm)</td><td>Spectre bypasses all walls including Iron. Devastating.</td></tr>
+<tr><td class="sv b">14</td><td>Siege T3 (Annihilator), Breacher T3 (Cataclysm)</td><td>T3 unit tier fully available. End-game power spikes.</td></tr>
+<tr><td class="sv b">15</td><td>Hero max level (10) reachable</td><td>Full hero power. Ultimate abilities enhanced.</td></tr>
+<tr><td class="sv b">16</td><td>Titan T2 (War Titan), Runner T3 (Phantom Runner)</td><td>War Titan cannot be Sniped. Phantom Runner invisible.</td></tr>
+<tr><td class="sv b">20</td><td>Titan T3 (Ancient Colossus), Sudden Death begins</td><td>Build Phase 15s only. Income doubled. Matches end fast.</td></tr>
+</table></div>
+</section>
+<!-- S11 HEROES -->
+<section class="sec" id="s11">
+<div class="sh"><span class="sn">11</span><h2>Hero System — Complete Specification</h2></div>
+<p class="lead">Heroes are physical commanders who live inside your maze. They cannot block paths, can be attacked by units, level up during the match, and swing critical moments with high-impact abilities. The hero you pick defines your playstyle.</p>
+<div class="cb r">
+<div class="ct">Universal Hero Rules</div>
+One hero per player, selected at match start. Heroes occupy one tile — engine enforces they cannot block valid maze path. Heroes can be targeted and damaged by enemy units within 2-tile aggro range. Hero death: 30s respawn at base position, all abilities on CD. Abilities 1/2/3 upgrade at levels 4/7/10. Ultimate unlocks at level 5.
+</div>
+<div id="hero-lvl">
+<h3>Hero Level Progression</h3>
+<div class="tw"><table>
+<tr><th>Level</th><th>XP Required</th><th>Unlock</th><th>Typical Round</th></tr>
+<tr><td>1</td><td>0</td><td>Passive + Abilities 1/2/3 (base) + Ultimate locked</td><td>Start</td></tr>
+<tr><td>4</td><td>200</td><td>Ability 1 upgraded (see each hero)</td><td>Round 6–7</td></tr>
+<tr><td>5</td><td>350</td><td>ULTIMATE UNLOCKED</td><td>Round 8–9</td></tr>
+<tr><td>7</td><td>800</td><td>Ability 2 upgraded</td><td>Round 11–12</td></tr>
+<tr><td>10</td><td>2000</td><td>Ability 3 upgraded. Ultimate enhanced.</td><td>Round 16–18</td></tr>
+</table></div>
+<p style="font-size:13px">XP sources: 5 XP per unit kill in range, 10 XP per round survived, 2 XP/second in Sudden Death.</p>
+</div>
+
+<div id="h-arch">
+<div class="cd hc" style="margin:24px 0">
+<div class="cn" style="font-size:18px">The Architect</div><div class="cr">Control · Maze Manipulation · Wall Commander</div>
+<div class="g2">
+<div>
+<p style="font-size:13.5px;margin-bottom:14px">A master builder who treats the maze as a living weapon. Extends walls mid-combat, seals breaches instantly, forces unit path recalculation. The hero for players who think in geometry.</p>
+<div class="sr"><span class="sl2">Role</span><span class="sv b">Control / Defensive</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">800 → 855 at lvl 10</span></div>
+<div class="sr"><span class="sl2">Passive</span><span class="sv g">All walls 20% cheaper to place and repair</span></div>
+<div class="sr"><span class="sl2">Lvl 8 Passive+</span><span class="sv g">30% cheaper. Instant Wall CD -10s.</span></div>
+<div class="sr"><span class="sl2">Best Research</span><span class="sv">Fortification + Control</span></div>
+<div class="sr"><span class="sl2">Worst vs</span><span class="sv r">Phantom (Blackout prevents Seal timing)</span></div>
+</div>
+<div>
+<div class="ab"><div class="an">Ability 1 · Instant Wall <span>CD: 30s → 22s at lvl 4</span></div>Place a Stone wall on any empty tile. No gold. Usable during Combat Phase. Lvl 4: can target any tile, not just adjacent.</div>
+<div class="ab"><div class="an">Ability 2 · Reinforce Zone <span>CD: 45s → 34s at lvl 7</span></div>5×5 zone: all walls +80% HP for 10s. Lvl 7: 7×7 zone, +4s duration.</div>
+<div class="ab"><div class="an">Ability 3 · Redirect <span>CD: 60s → 45s at lvl 10</span></div>All enemy units recalculate path from current position. Disrupts breach momentum. Lvl 10: also slows units 40% for 3s after redirect.</div>
+<div class="ab"><div class="an">ULTIMATE · Seal <span>CD: 120s · Unlocks lvl 5</span></div>Indestructible tile barrier for 12s. Units reroute — cannot breach it. Lvl 10: 18s duration, can target 2 adjacent tiles simultaneously.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="h-war">
+<div class="cd hc" style="margin:24px 0">
+<div class="cn" style="font-size:18px">The Warlord</div><div class="cr">Burst · Tower Amplification · Offensive Commander</div>
+<div class="g2">
+<div>
+<p style="font-size:13.5px;margin-bottom:14px">Turns individual towers into weapons of mass destruction. Overcharges, airstrikes, delete-clicks priority targets. The hero for players who want to feel the kill.</p>
+<div class="sr"><span class="sl2">Role</span><span class="sv r">Burst / Offensive</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">600 → 655 at lvl 10</span></div>
+<div class="sr"><span class="sl2">Passive</span><span class="sv g">+15% damage to all towers in maze</span></div>
+<div class="sr"><span class="sl2">Lvl 8 Passive+</span><span class="sv g">+20% damage. Hero attacks gain cleave.</span></div>
+<div class="sr"><span class="sl2">Best Research</span><span class="sv">Destruction + Sabotage</span></div>
+<div class="sr"><span class="sl2">Best Towers</span><span class="sv">Cannon + Chain + Inferno</span></div>
+</div>
+<div>
+<div class="ab"><div class="an">Ability 1 · Overcharge <span>CD: 40s → 30s at lvl 4</span></div>Target tower fires 2× rate for 12s. Lvl 4: affects 2 adjacent towers simultaneously.</div>
+<div class="ab"><div class="an">Ability 2 · Airstrike <span>CD: 50s → 38s at lvl 7</span></div>3×3 zone, 300 AoE after 1.5s telegraph — ignores walls. Lvl 7: 4×4 zone, 450 damage.</div>
+<div class="ab"><div class="an">Ability 3 · Snipe <span>CD: 90s → 65s at lvl 10</span></div>Instantly delete one visible unit. Cannot target Reinforced-trait or War Titan (T2+). Lvl 10: hits 2 nearest units simultaneously.</div>
+<div class="ab"><div class="an">ULTIMATE · Barrage <span>CD: 150s · Unlocks lvl 5</span></div>All towers fire simultaneously at max range for 6s at 1× speed. Lvl 10: 8s at 1.5× speed.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="h-bro">
+<div class="cd hc" style="margin:24px 0">
+<div class="cn" style="font-size:18px">The Broker</div><div class="cr">Economy · Income Warfare · Comeback Specialist</div>
+<div class="g2">
+<div>
+<p style="font-size:13.5px;margin-bottom:14px">Manipulates gold flows. Falling behind with Broker is recoverable in ways other heroes cannot replicate. The designed comeback hero.</p>
+<div class="sr"><span class="sl2">Role</span><span class="sv g">Economy / Comeback</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">500 → 555 at lvl 10</span></div>
+<div class="sr"><span class="sl2">Passive</span><span class="sv g">+2g per unit killed anywhere in maze</span></div>
+<div class="sr"><span class="sl2">Lvl 8 Passive+</span><span class="sv g">+3g/kill. Leaked units give 25% gold refund.</span></div>
+<div class="sr"><span class="sl2">Best Research</span><span class="sv">Economy + Intel</span></div>
+<div class="sr"><span class="sl2">Best Synergy</span><span class="sv">Gold Shrine Treasury + Bounty research</span></div>
+</div>
+<div>
+<div class="ab"><div class="an">Ability 1 · Emergency Funds <span>CD: 60s → 45s at lvl 4</span></div>Instantly receive 70g. Lvl 4: 100g + next unit sent this round costs 0g.</div>
+<div class="ab"><div class="an">Ability 2 · Sabotage Income <span>CD: 90s → 68s at lvl 7</span></div>Opponent's next income tick -40%. Lvl 7: 2 consecutive ticks -30% each.</div>
+<div class="ab"><div class="an">Ability 3 · Black Market <span>CD: 45s → 33s at lvl 10</span></div>Any one unit or upgrade at 50% cost this round. Lvl 10: 2 purchases at 50%, includes research.</div>
+<div class="ab"><div class="an">ULTIMATE · Economic Warfare <span>CD: 180s · Unlocks lvl 5</span></div>Your income rate doubled for 1 full round. Every send generates 2× income bonus. Lvl 10: 2 rounds + 25% send cost reduction during.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="h-phan">
+<div class="cd hc" style="margin:24px 0">
+<div class="cn" style="font-size:18px">The Phantom</div><div class="cr">Disruption · Information Control · Psychological Warfare</div>
+<div class="g2">
+<div>
+<p style="font-size:13.5px;margin-bottom:14px">Controls what the opponent knows. Hides sends, reveals weaknesses, plants false information, disrupts at the worst moments. The hero for players who win through superior information.</p>
+<div class="sr"><span class="sl2">Role</span><span class="sv p">Disruption / Intel</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv">450 → 505 at lvl 10</span></div>
+<div class="sr"><span class="sl2">Passive</span><span class="sv g">Enemy's view of your sends delayed 2 extra seconds</span></div>
+<div class="sr"><span class="sl2">Lvl 8 Passive+</span><span class="sv g">Delay 4s. Scout units reveal 6×6 sections.</span></div>
+<div class="sr"><span class="sl2">Best Research</span><span class="sv">Intel + Sabotage</span></div>
+<div class="sr"><span class="sl2">Best Units</span><span class="sv">Ghost T3 Spectre + Invisible-trait Runner</span></div>
+</div>
+<div>
+<div class="ab"><div class="an">Ability 1 · Scout Swarm <span>CD: 25s → 18s at lvl 4</span></div>Send 3 free Scout units revealing 4×4 sections. Psychological: opponent sees "SCOUTED". Lvl 4: 5 Scouts, revealed until round end.</div>
+<div class="ab"><div class="an">Ability 2 · Veil <span>CD: 55s → 42s at lvl 7</span></div>All units you send this round spawn invisible (free Invisible trait for all). Lvl 7: invisible units also +20% speed while invisible.</div>
+<div class="ab"><div class="an">Ability 3 · Decoy Send <span>CD: 70s → 52s at lvl 10</span></div>Show opponent false unit preparation (they see Titan, you send nothing). Bait defensive spending. Lvl 10: can simultaneously make a real send while showing a false one.</div>
+<div class="ab"><div class="an">ULTIMATE · Blackout <span>CD: 140s · Unlocks lvl 5</span></div>Disable opponent's full maze vision 6s. They can't see units, HP bars, or target abilities. Lvl 10: 10s + hero abilities auto-cancel if used during Blackout.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="h-sent">
+<div class="cd hc" style="margin:24px 0">
+<div class="cn" style="font-size:18px">The Sentinel</div><div class="cr">Tank · Active Combat · Wall That Fights Back</div>
+<div class="g2">
+<div>
+<p style="font-size:13.5px;margin-bottom:14px">The only hero who actively attacks units as primary function. Stands in the maze and fights. Slower cooldowns but highest personal combat impact. Positioning mastery required.</p>
+<div class="sr"><span class="sl2">Role</span><span class="sv o">Tank / Frontline</span></div>
+<div class="sr"><span class="sl2">HP</span><span class="sv r">2000 → 2055 at lvl 10</span></div>
+<div class="sr"><span class="sl2">Armor</span><span class="sv r">40 (highest hero)</span></div>
+<div class="sr"><span class="sl2">Passive</span><span class="sv g">Attacks all units within 1.5 tile range (40/hit, 1.2s). AoE auto-attack.</span></div>
+<div class="sr"><span class="sl2">Lvl 8 Passive+</span><span class="sv g">60/hit. Adjacent towers +10% fire rate.</span></div>
+<div class="sr"><span class="sl2">Best Research</span><span class="sv">Fortification + Control</span></div>
+</div>
+<div>
+<div class="ab"><div class="an">Ability 1 · Hold The Line <span>CD: 50s → 38s at lvl 4</span></div>8s: immovable, 70% damage reduction, units targeting Sentinel do 0 breach damage to walls behind. Lvl 4: 12s, Sentinel continues attacking while holding.</div>
+<div class="ab"><div class="an">Ability 2 · Shockwave <span>CD: 65s → 50s at lvl 7</span></div>Stuns all units 3-tile radius 2.5s. Interrupts Siege breach animation. Lvl 7: 5-tile radius, stunned units take +20% damage during stun.</div>
+<div class="ab"><div class="an">Ability 3 · Rebuke <span>CD: 80s → 60s at lvl 10</span></div>Knock all nearby units 4 tiles backward — re-traverse under full tower fire. Lvl 10: 6 tiles back + 50% slow for 3s on knockback.</div>
+<div class="ab"><div class="an">ULTIMATE · Fortress Mode <span>CD: 160s · Unlocks lvl 5</span></div>14s: transform to stationary fortress with 5000 separate HP. Adjacent towers +100% damage +50% fire rate. Ends when HP depleted or time expires. Lvl 10: 20s, +150% tower damage.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="hero-syn">
+<h3>Hero Team Synergies (2v2 & 4v4)</h3>
+<div class="tw"><table>
+<tr><th>Pairing</th><th>Combined Power</th><th>Weakness</th></tr>
+<tr><td class="tn">Architect + Sentinel</td><td>Near-impenetrable defense. Architect seals breaches, Sentinel holds physically. Zero units exit while both active.</td><td>Zero offensive pressure. Economy falls behind without regular sends.</td></tr>
+<tr><td class="tn">Broker + Warlord</td><td>Economic lead → overwhelming T3 sends amplified by Barrage. Broker funds Warlord's aggressive playstyle.</td><td>Both heroes fragile. Sentinel opponent walks through them.</td></tr>
+<tr><td class="tn">Phantom + Broker</td><td>Complete information asymmetry + economic warfare. Opponent has no idea what's coming or how much it costs.</td><td>Both glass cannons. No physical maze defense ability.</td></tr>
+<tr><td class="tn">Warlord + Sentinel</td><td>Sentinel holds units at choke, Warlord Overcharges Cannon on stationary pack. Kills 20+ units per round.</td><td>High cooldown dependency. Economic lag if CDs not ready.</td></tr>
+<tr><td class="tn">Architect + Phantom</td><td>Architect Seal + Phantom Blackout simultaneously. Opponent blind + units blocked 6–18 seconds. Entire Titan T3 dies.</td><td>Zero damage output. Purely reactive.</td></tr>
+</table></div>
+</div>
+</section>
+<!-- S12 MODES -->
+<section class="sec" id="s12">
+<div class="sh"><span class="sn">12</span><h2>Game Modes — Full Specification</h2></div>
+
+<div id="m-1v1"><h3>1v1 — The Duel</h3>
+<p class="lead">Pure skill expression. Two mazes, one winner. The foundational ranked mode — 15–20 minutes, highest skill expression, no team dynamics to hide behind.</p>
+<div class="g2">
+<div class="tw"><table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Life Pool</td><td class="sv r">20 lives each</td></tr>
+<tr><td>Starting Gold</td><td class="sv g">60g</td></tr>
+<tr><td>Send Target</td><td class="sv">Direct to opponent</td></tr>
+<tr><td>Hero Draft</td><td class="sv">Ranked: pick/ban. Casual: free pick.</td></tr>
+<tr><td>Avg Match Length</td><td class="sv">18 minutes</td></tr>
+<tr><td>Comeback Mechanic</td><td class="sv g">+8g/round below 5 lives</td></tr>
+<tr><td>Win Condition</td><td class="sv r">Reduce opponent to 0 lives</td></tr>
+</table></div>
+<div class="cb b"><div class="ct">1v1 Meta Priorities</div>
+<ul class="bl" style="margin:0;font-size:12.5px">
+<li>Identify minimum viable defense per send (avoid overbuilding)</li>
+<li>Send T2/T3 units when opponent just spent gold rebuilding</li>
+<li>Counter-research: opponent buys Destruction T1 → prepare Armored Siege</li>
+<li>Hero ability timing: Barrage reserved for T3 Titan, not Swarm</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="m-2v2"><h3>2v2 — Alliance</h3>
+<p>Two teams of two. Own mazes, shared team life pool. Coordinated sends create attacks impossible in solo play.</p>
+<div class="g2">
+<div class="tw"><table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Team Life Pool</td><td class="sv r">35 lives shared</td></tr>
+<tr><td>Send Targeting</td><td class="sv">Rounds 1–8: own opponent only. Round 9+: either opponent</td></tr>
+<tr><td>Coordinated Send Bonus</td><td class="sv g">Same-round send from both players: +15% unit HP</td></tr>
+<tr><td>Communication</td><td class="sv">Ping system + quick chat macros</td></tr>
+</table></div>
+<div class="cb gr"><div class="ct">2v2 Coordination Combos</div>
+<ul class="bl" style="margin:0;font-size:12.5px">
+<li>Synchronized Titan T3: both save 520g, send Ancient Colossus same round — most mazes cannot survive 2 simultaneously</li>
+<li>P1 sends Siege to disable Gold Shrine while P2 sends Breacher flood — combined economic annihilation</li>
+<li>Economy Carry: P1 Broker focuses income, P2 maze quality — P1 funds P2's late T3 upgrades</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="m-4v4"><h3>4v4 — Lane Conquest (Flagship Mode)</h3>
+<p class="lead">Four players per team. Four parallel lanes. Three escalating phases. Dominating your lane makes you a Conqueror who invades remaining lanes. The match becomes organized chaos earned through individual excellence.</p>
+<div class="tl">
+<div class="ti"><div class="td2"></div>
+<div class="tp">Phase 1 · Isolation</div><div class="tt2">1v1 in each lane</div>
+<p>All 4 lanes fully isolated. No cross-lane interaction. Individual life pools (20 each). Fight your mirrored opponent only. Winner of their lane first becomes a Conqueror.</p>
+</div>
+<div class="ti"><div class="td2"></div>
+<div class="tp">Phase 2 · Invasion</div><div class="tt2">On First Lane Defeat</div>
+<p>Defeated player becomes spectator. Winner becomes Conqueror. May invade adjacent enemy lane (L or R neighbor only). 2-round delay before first invasion send. Income contribution: 60%. Hero abilities: 50% power in invaded lane. Invaded player receives +5g/round emergency bonus.</p>
+</div>
+<div class="ti"><div class="td2"></div>
+<div class="tp">Phase 3 · Collapse</div><div class="tt2">Multiple Defeats</div>
+<p>2 enemy lanes defeated: Conquerors can target any remaining lane. 3 defeated: Team life pool activates (40 shared), hero abilities at full power. All 4 defeated: Victory. Phase 3 is the spectacle — dramatic, fast, stream-worthy.</p>
+</div>
+</div>
+</div>
+
+<div id="m-draft"><h3>Draft Mode — Asymmetric Starting Conditions</h3>
+<span class="badge2 new-badge">NEW · Not in WC3</span>
+<p>Available in ranked 1v1 and organized tournaments from Season 2. Adds metagame depth, tournament drama, and endless strategic content.</p>
+<div class="cb"><div class="ct">Draft Format</div>
+<p>Before match start, a 3-step draft phase runs: (1) <strong>Tower Ban:</strong> each player bans 2 tower types from the full roster — those towers are unavailable to BOTH players this match. (2) <strong>Hero Pick:</strong> alternating single pick. Player with lower ELO picks first. (3) <strong>Research Lock:</strong> each player secretly commits to 2 research trees before Round 1 (visible to opponent at Round 1 start). Research lock is advisory only — breaking it costs +20% research prices.</p>
+<p style="font-size:13px">Tower bans create entirely different metas — ban Cannon and the game becomes about Chain + Inferno defense. Ban Frost and units move fast through everything. Ban Chain and Siege becomes unstoppable. Each combination is a completely different strategic puzzle.</p>
+</div>
+<div class="g2">
+<div class="cb b"><div class="ct">Asymmetric Starting Condition (Optional Ranked Mode)</div>
+<p style="font-size:13px">In a variant of ranked play (separate queue), players start with different conditions based on their last 5 match history: the player who recently lost more gets +15g starting gold and a free T1 tower of their choice. The player who won more starts with a +5g/round income bonus. Creates natural asymmetry making comeback matches mathematically fairer without compromising competitive integrity.</p>
+</div>
+<div class="cb gr"><div class="ct">Why Draft Mode Is a Content Engine</div>
+<ul class="bl" style="margin:0;font-size:12.5px">
+<li>Every ban combination = unique meta episode (streams, YouTube essays)</li>
+<li>Pro players become known for signature ban patterns</li>
+<li>Community discovers: "If you ban Frost + Cannon, Napalm Maze becomes unbeatable"</li>
+<li>Patch notes now affect draft meta — content creators analyze weekly</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="m-ranked"><h3>Ranked System</h3>
+<div class="tw"><table>
+<tr><th>Rank</th><th>ELO</th><th>Unlock</th><th>Seasonal Reward</th></tr>
+<tr><td class="tn">Stone</td><td>0–800</td><td>Match 1</td><td>Stone Wall tile cosmetic</td></tr>
+<tr><td class="tn">Iron</td><td>800–1200</td><td>10 placement matches</td><td>Iron Wall tile set + nameplate</td></tr>
+<tr><td class="tn">Gold</td><td>1200–1600</td><td>Iron achieved</td><td>Gold hero border + emote</td></tr>
+<tr><td class="tn">Obsidian</td><td>1600–2000</td><td>Gold achieved</td><td>Obsidian maze theme + frame</td></tr>
+<tr><td class="tn">Warlord</td><td>2000–2400</td><td>Top 10%</td><td>Warlord skin + tower skin set</td></tr>
+<tr><td class="tn">Conqueror</td><td>2400+</td><td>Top 1%</td><td>Animated hero skin + exclusive title</td></tr>
+</table></div>
+<p style="font-size:13px">Seasons 10 weeks. ELO soft-reset -15% toward 1200 each season. 10 placement matches required per season. All rewards cosmetic only.</p>
+</div>
+</section>
+<!-- S13 INNOVATION SYSTEMS -->
+<section class="sec" id="s13">
+<div class="sh"><span class="sn">13</span><h2>Innovation Systems <span style="font-size:12px;color:var(--bl);letter-spacing:2px">NEW — Not in WC3</span></h2></div>
+<p class="lead">These systems are what transform Maze Dominion from a great game into a game with a metagame, a community, and a reason to come back every week. Every single one of these is something WC3 Tower Wars never had.</p>
+
+<div id="replay">
+<div class="dv2"><span>Match Replay &amp; Ghost System</span></div>
+<span class="badge2 new-badge">NEW — Solves WC3's No Learning Tool Problem</span>
+<p>After every match — win or lose — the player enters a post-match Review screen. This shows their maze overlaid with a "ghost replay" of the entire match.</p>
+<div class="g2">
+<div class="cb b"><div class="ct">What the Ghost System Shows</div>
+<ul class="bl" style="margin:0;font-size:13px">
+<li><strong>Breach heat map:</strong> Red-colored tiles show where walls/towers were breached, intensity of red = how many times breached. Instantly shows structural weaknesses.</li>
+<li><strong>Unit path overlay:</strong> Semi-transparent unit silhouettes show the exact paths all units took through your maze. Reveals shortcut routes you didn't know existed.</li>
+<li><strong>Gold efficiency per round:</strong> Mini timeline shows each round's gold spend vs gold earned. Highlights overbuilding rounds (red) and efficient rounds (green).</li>
+<li><strong>Leak analysis:</strong> For every unit that exited your maze, shows which breach point they used and how many lives it cost you.</li>
+<li><strong>Opponent comparison:</strong> Side-by-side view of both mazes. See exactly why their towers killed more efficiently than yours.</li>
+</ul>
+</div>
+<div>
+<div class="cb gr"><div class="ct">Why This Is Critical</div>
+<p style="font-size:13px">WC3 Tower Wars players couldn't understand why they lost. No improvement loop beyond intuition. The Ghost System makes the learning curve visible. New players see "I was breached here 7 times — I need an Iron wall here." Intermediate players see "I spent 80g on Round 6 when 40g would have held." Expert players see "My opponent sent Siege specifically when my Gold Shrine was exposed."</p>
+<p style="font-size:13px">This is also the single best content creation tool in the game. Streamers show ghost replays of their best and worst moments. YouTube essay content: "The most embarrassing breach in Maze Dominion history." Every replay is shareable via 6-digit code.</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="combos">
+<div class="dv2"><span>Named Combo Discovery System</span></div>
+<span class="badge2 new-badge">NEW — Community Ownership Mechanic</span>
+<p>When a player first triggers a new tower synergy pattern that results in an exceptionally efficient kill sequence, the ComboDatabase records it permanently with their name attached.</p>
+<div class="g2">
+<div class="cb"><div class="ct">How It Works</div>
+<p style="font-size:13px">The system monitors: tower combinations that fire within 0.5s of each other on the same unit, unit kill rates above 150% of baseline efficiency, and breach bait patterns that result in 90%+ unit kills before exit. When a new pattern is first detected: flash "NEW COMBO DISCOVERED" notification. Player types a name. It's permanently logged to the Metagame Hub as "The Coffin — discovered by [PlayerName], Round 5, Season 1."</p>
+<p style="font-size:13px">Combos persist across patches unless they become impossible due to balance changes (archived with "(nerfed)" tag). Players build reputations around their discoveries. Top combo discoverers have a Hall of Fame page.</p>
+</div>
+<div>
+<div class="cb gr"><div class="ct">Why Players Love This</div>
+<ul class="bl" style="margin:0;font-size:13px">
+<li>Your name is in the game forever — permanent legacy</li>
+<li>Creates constant discovery motivation — "what hasn't been found yet?"</li>
+<li>Content creators race to find undiscovered combos first</li>
+<li>Metagame Hub becomes a wiki that players contribute to organically</li>
+<li>Seasonal map changes create new combo possibilities each season</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="intel">
+<div class="dv2"><span>Intel &amp; Scout System</span></div>
+<span class="badge2 new-badge">NEW — Solves WC3's Full Visibility Problem</span>
+<p>By default, you cannot see your opponent's maze layout. You know units are coming in. You see what types exit. But their build choices, tower positions, and maze geometry are hidden until scouted.</p>
+<div class="cb"><div class="ct">Scout Unit</div>
+<p style="font-size:13px">Costs 10g. Purchased via Intel Research T1. Send Scout into opponent's maze — it reveals a 4×4 section for 20 seconds, then dies. Opponent receives "SCOUTED" notification (they know you've seen that section — creates a bluff layer). Scout units have 30 HP and are easily killed by towers — place them at entry and choose which section to target wisely.</p>
+</div>
+<div class="g2">
+<div class="cb b"><div class="ct">Information Layers</div>
+<ul class="bl" style="margin:0;font-size:13px">
+<li><strong>No Intel research:</strong> See unit types spawning in real time. See leaked unit types. No maze visibility.</li>
+<li><strong>Intel T1 (Scouts):</strong> Scout units reveal 4×4 sections on demand. You choose where to look.</li>
+<li><strong>Intel T2 (Surveillance):</strong> See opponent's current gold at round end (±10g precision).</li>
+<li><strong>Intel T2 (Intercept):</strong> 5s preview of opponent's unit queue before their Send Phase ends.</li>
+<li><strong>Intel T3 (Dark Ops):</strong> YOUR sends are hidden from opponent for 3s post-spawn.</li>
+<li><strong>Intel T3 (Blackout):</strong> Opponent loses all vision for 6s — use with Titan send.</li>
+</ul>
+</div>
+<div class="cb r"><div class="ct">The Bluff Poker Layer</div>
+<p style="font-size:13px">When you scout, your opponent knows. They may: rebuild their maze to hide the weakness you saw, send decoy units in a different direction, or use Phantom's Decoy Send ability to make you think Titan is coming while sending nothing. At high level, the decision to scout is itself strategic — sometimes you DON'T scout to let your opponent think you don't know what they're doing.</p>
+</div>
+</div>
+</div>
+
+<div id="tempo">
+<div class="dv2"><span>Tempo Bar System</span></div>
+<p>Visible HUD bar spanning the top center of the screen. Also shown on spectator overlay in esports broadcast. Calculated every round end. Cosmetic only — no mechanical effect. Essential for streaming and casters.</p>
+<pre>Tempo = (My Income - Opp Income) × 1.0
+      + (My Lives - Opp Lives) × 2.0  
+      + (Towers I destroyed - towers opp destroyed) × 3.0
+      + (Sends made this round - opp sends) × 1.5
+Positive → bar fills toward opponent (you're winning)
+Negative → bar fills toward you (you're behind)</pre>
+<p style="font-size:13px">Color coding: green when you're ahead, amber when close, red when behind. Subtle pulsing animation at extremes. Intentionally designed to create "will this comeback happen?" tension in spectator scenarios.</p>
+</div>
+
+<div id="maze-share">
+<div class="dv2"><span>Maze Sharing System</span></div>
+<span class="badge2 new-badge">NEW — Community Content Engine</span>
+<p>After any match, save your current maze layout as a named template with a 6-digit share code. Load any shared maze as your starting layout for the next match.</p>
+<div class="g2">
+<div class="cb"><div class="ct">How It Works</div>
+<p style="font-size:13px">MazeSaveData serializes: tile positions (type + HP modifier), tower placements (type + upgrade level), hero starting position, and metadata (author, ELO, match record). Stored in Supabase with 6-digit alphanumeric code. Share code is viewable in post-match screen. Anyone with the code can load it. Community voting: upvote mazes that work well. Top-rated mazes featured on Metagame Hub weekly.</p>
+</div>
+<div class="cb gr"><div class="ct">Maze of the Week</div>
+<p style="font-size:13px">Every Wednesday, the top community-voted maze template is designated "Maze of the Week." A special challenge runs: use ONLY this starting maze template. Whoever achieves the best win rate with it earns a cosmetic badge. This is free content generation every week — the community does the design work, Maze Dominion provides the platform.</p>
+</div>
+</div>
+</div>
+
+<div id="seasonal">
+<div class="dv2"><span>Seasonal Map Rotation</span></div>
+<span class="badge2 new-badge">NEW — Prevents Meta Stagnation</span>
+<p>Each season introduces 2–3 new grid template variants alongside the standard layout. Template variants change the terrain of the player grid — not the rules, but the starting geometry.</p>
+<div class="g2">
+<div>
+<h4>Season 1 Maps (Launch)</h4>
+<ul class="bl">
+<li><strong>Standard Grid:</strong> Classic 20×40 open field. Entry/exit centered. No obstacles.</li>
+<li><strong>The Narrows:</strong> Standard grid but a 3-tile-wide pre-built stone corridor runs down the center. Forces maze building around the central column.</li>
+<li><strong>Mirror Lakes:</strong> Two circular "lake" tiles (unplaceable) in the middle. Units must go around them. Entry/exit offset 4 tiles from center.</li>
+</ul>
+</div>
+<div>
+<h4>Why Seasonal Maps Matter</h4>
+<ul class="bl">
+<li>Named Combos discovered on standard grid may not work on The Narrows</li>
+<li>Creates seasonal meta resets — players must re-learn</li>
+<li>Content creators analyze "best maze for The Narrows" every season</li>
+<li>AI-assisted map generation: use Claude to generate new tile variants cheaply between seasons</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="caster">
+<div class="dv2"><span>Caster &amp; Broadcast Mode</span></div>
+<span class="badge2 new-badge">NEW — Solves WC3's Zero Esports Infrastructure Problem</span>
+<p>A dedicated Esports Broadcast Mode activated via hotkey during spectating. Completely different from playing — designed for streamers, tournament casters, and esports production.</p>
+<div class="g2">
+<div class="cb"><div class="ct">Broadcast Mode Features</div>
+<ul class="bl" style="margin:0;font-size:13px">
+<li><strong>Dual-pane view:</strong> Both mazes visible simultaneously side-by-side at reduced scale</li>
+<li><strong>Auto-highlight:</strong> System automatically detects high-value moments (Titan spawns, tower destructions, named combo triggers) and zooms camera to that location for 3 seconds</li>
+<li><strong>Tempo Bar (large):</strong> Prominent economic state display with historical graph for last 5 rounds</li>
+<li><strong>Life pool drama meter:</strong> Animated visual shows when a player is 1–3 lives from elimination</li>
+<li><strong>Income comparison panel:</strong> Real-time income rate and cumulative gold earned comparison</li>
+<li><strong>Breach heat map overlay:</strong> Live version of the post-match ghost system — shows breach frequency in real time during spectate</li>
+<li><strong>Caster annotations:</strong> Caster can draw on screen, highlight areas, add text bubbles (broadcast only)</li>
+</ul>
+</div>
+<div>
+<div class="cb b"><div class="ct">Auto-Highlight Clip Generator</div>
+<p style="font-size:13px">After any match in spectator mode, a "Generate Highlights" button creates a 60–90 second clip of the 5 highest-impact moments: biggest breach events, game-turning sends, hero ultimate activations, life-pool swings. The clip auto-formats for: Twitter/X (horizontal), TikTok/Reels (vertical), YouTube (16:9). One click from game to shareable content. This is the social media growth engine for organic Maze Dominion awareness.</p>
+</div>
+<div class="cb gr"><div class="ct">Twitch Integration</div>
+<p style="font-size:13px">Twitch Drops: viewers watching any Maze Dominion stream earn in-game cosmetics after 2-hour watch sessions. This drives: streamers play Maze Dominion (drops bring viewers), viewers watch (drops bring new players), new players stream (more drops). Activation target: at 20,000 active players.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- S14 ART -->
+<section class="sec" id="s14">
+<div class="sh"><span class="sn">14</span><h2>Visual Direction & Art Production</h2></div>
+<p class="lead">Dark Fantasy Industrial — ancient stone architecture fused with magical engineering. WC3 Undead aesthetic meets Arcane's environmental richness. Every asset must read clearly at all 3 camera zoom levels.</p>
+
+<div id="art-t">
+<h3>Color Language</h3>
+<div class="swatch">
+<div class="sw" style="background:#1a1209;color:#c9a84c">OBSIDIAN<br>#1A1209<br><small>Background</small></div>
+<div class="sw" style="background:#c9a84c;color:#1a1209">GOLD<br>#C9A84C<br><small>UI Accent</small></div>
+<div class="sw" style="background:#8b1a1a;color:#f0d080">BLOOD<br>#8B1A1A<br><small>Danger/HP</small></div>
+<div class="sw" style="background:#4ecdc4;color:#1a1209">FROST<br>#4ECDC4<br><small>Ice Magic</small></div>
+<div class="sw" style="background:#ff6b35;color:#1a1209">FIRE<br>#FF6B35<br><small>Inferno</small></div>
+<div class="sw" style="background:#4daa57;color:#1a1209">LIFE<br>#4DAA57<br><small>Income/Heal</small></div>
+<div class="sw" style="background:#9b59b6;color:#fff">DARK<br>#9B59B6<br><small>Sabotage</small></div>
+<div class="sw" style="background:#607d8b;color:#fff">STEEL<br>#607D8B<br><small>Iron Walls</small></div>
+</div>
+
+<h3>Tower Visual Concepts & AI Prompts</h3>
+<div class="g3">
+<div class="ab2"><h4>Arrow Tower</h4><p style="font-size:12.5px">Tall narrow obsidian spire. Hooded archer at pinnacle. Warm amber torchlight. Gold rune at base glows on attack. Arrows leave glowing amber trail.</p>
+<div class="ab2"><h4>Cannon Tower</h4><p style="font-size:12.5px">Squat wide fortification. Heavy iron barrel. Ground scorched black. Permanent smoke. Orange glow pre-fire.</p>
+<div class="ab2"><h4>Chain Tower</h4><p style="font-size:12.5px">Black obelisk. Three metal prongs with crackling lightning. Gold-blue electric charge. Burn marks radiating from base. Purple storm rune.</p>
+<div class="ab2"><h4>Inferno Tower</h4><p style="font-size:12.5px">Twisted column with open fire pit at top. Constant billowing flames. Falling embers. Fire rune glowing orange-red.</p>
+<div class="ab2"><h4>Frost Tower</h4><p style="font-size:12.5px">Ice crystals growing from dark stone. Blue-white geometric formations. Frost particles drifting down. Snowflake rune. Cold pale blue ambient glow.</p>
+<div class="ab2"><h4>Gold Shrine</h4><p style="font-size:12.5px">Ornate shrine covered in gold leaf. Coins orbiting slowly. Warm gold pulse every 3s. Merchant rune on face. Precious and slightly out of place.</p>
+</div>
+</div>
+
+<div id="art-u">
+<h3>Unit Visual Concepts — Base Tier + Tier 3 Designs</h3>
+<div class="tw"><table>
+<tr><th>Unit</th><th>T1 Visual</th><th>T3 Elite Visual</th></tr>
+<tr><td class="tn">Runner</td><td>Lean hooded figure, amber motion blur, yellow eyes</td><td class="tn">Phantom Runner: barely visible translucent silhouette, afterimage trails, no visible features except speed lines</td></tr>
+<tr><td class="tn">Breacher</td><td>Hulking iron armor, enormous demolition maul, dust cloud</td><td class="tn">Cataclysm: twice the scale, cracked lava lines across armor, maul replaced with explosive wrecking sphere</td></tr>
+<tr><td class="tn">Siege</td><td>Golem-construct, cannon on back, red energy core, 2x scale</td><td class="tn">Annihilator: mobile siege fortress, 3x scale, multiple cannon arrays, gold trophy pieces from destroyed towers attached</td></tr>
+<tr><td class="tn">Ghost</td><td>Translucent specter, blue-white, wispy, flickering</td><td class="tn">Spectre: barely visible outline, leaves no ground shadow, moves through walls visually (particles pass through)</td></tr>
+<tr><td class="tn">Swarm</td><td>5 tiny insect-like creatures, yellow-green chitinous shells</td><td class="tn">Death Swarm: 10 units, larger, pulsing red death-glow on shells, visible explosive charge attached to each</td></tr>
+<tr><td class="tn">Titan</td><td>4x scale colossus, molten gold cracks, blood-red eyes</td><td class="tn">Ancient Colossus: fills the screen on approach, ancient stone ruins embedded in body, meteor craters form on footsteps</td></tr>
+</table></div>
+</div>
+
+<div id="art-h">
+<h3>Hero Visual Concepts & AI Prompts</h3>
+<div class="g2">
+<div class="ab2"><h4>The Architect</h4><p style="font-size:12.5px">Tall cloaked figure. Geometric maze-pattern robe that glows as walls are placed. One hand projecting blueprints. Ancient compass and chisel. Gold construction magic in palms.</p>
+<div class="ab2"><h4>The Warlord</h4><p style="font-size:12.5px">Battle-scarred plate armor. Trophy kills attached. Zweihander sword. War paint under helm. Every plate has scars and weld repairs. Orange battle-aura.</p>
+<div class="ab2"><h4>The Broker</h4><p style="font-size:12.5px">Elegant dark robe trimmed with gold coins. Ancient ledger in hand. Coins orbiting the figure. Half-down hood revealing calculating expression. More dangerous than they look.</p>
+<div class="ab2"><h4>The Phantom</h4><p style="font-size:12.5px">Slim shadow figure in dark tactical gear. Face completely concealed. Translucent at edges. Glowing eye slits only visible feature. Scout drones orbiting.</p>
+<div class="ab2"><h4>The Sentinel</h4><p style="font-size:12.5px">Enormous juggernaut wider than 1 tile. Tower shield half covering body. Fortress runes on every plate. Ground cracks underfoot. Immovable planted stance. Gold rune light.</p>
+</div>
+</div>
+
+<div id="art-v">
+<h3>VFX Library — Priority Events</h3>
+<div class="tw"><table>
+<tr><th>Event</th><th>VFX Description</th><th>Sound</th><th>Priority</th></tr>
+<tr><td class="tn">Wall destroyed</td><td>Stone explosion outward, debris scatter, dust cloud 2-tile radius, crack-line sequence pre-pop</td><td>Stone crack + explosion + rumble echo</td><td class="sv r">CRITICAL</td></tr>
+<tr><td class="tn">Tower destroyed</td><td>3-stage collapse: crack lines → crumble → fire burst + smoke lingers 5s</td><td>Multi-layer: crumble + metal groan + fire whoosh</td><td class="sv r">CRITICAL</td></tr>
+<tr><td class="tn">Titan footstep</td><td>Screen tremor, ground crack emanates from footstep tile, red eye visible at spawn</td><td>Deep bass rumble + distant thunder</td><td class="sv r">HIGH</td></tr>
+<tr><td class="tn">Named combo trigger</td><td>"THE COFFIN — Discovered by [Player]" gold banner 2s + particle burst</td><td>Fanfare sting + crowd cheer (subtle)</td><td class="sv">MEDIUM</td></tr>
+<tr><td class="tn">Life stolen</td><td>Red heart particle rises from exit tile toward enemy life pool counter</td><td>Heartbeat thud + glass crack</td><td class="sv r">HIGH</td></tr>
+<tr><td class="tn">Income tick</td><td>Gold coin shower over player field, coins rise and disappear</td><td>Coin clink ×3 ascending pitch</td><td class="sv">MEDIUM</td></tr>
+<tr><td class="tn">Ghost System activate</td><td>Post-match: maze tiles gradually illuminate with heat map colors (blue=safe, red=breached)</td><td>Ambient "memory" reverb tone</td><td class="sv r">HIGH</td></tr>
+<tr><td class="tn">T3 unit spawn</td><td>Unique spawn flash per unit type: Phantom Runner — speed lines burst; Annihilator — ground quake; Ancient Colossus — screen-filling particle storm</td><td>Tier-appropriate dramatic sting</td><td class="sv r">HIGH</td></tr>
+</table></div>
+</div>
+
+</section>
+
+
+<!-- S15 MONETIZATION -->
+<section class="sec" id="s15">
+<div class="sh"><span class="sn">15</span><h2>Monetization — Complete Strategy</h2></div>
+<p class="lead">Free-to-play with cosmetic-only monetization. Competitive integrity is legally protected by our own policy. Nothing sold affects gameplay, balance, or win rates. Ever.</p>
+<div class="g2">
+<div>
+<h3>Product Catalog</h3>
+<div class="tw"><table>
+<tr><th>Product</th><th>Price</th><th>Notes</th></tr>
+<tr><td class="tn">Battle Pass (Seasonal)</td><td class="sv g">$9.99</td><td>10-week seasons, 40 tiers, cosmetics only</td></tr>
+<tr><td class="tn">Legendary Hero Skin</td><td class="sv g">$14.99</td><td>Highest value per transaction</td></tr>
+<tr><td class="tn">Epic Hero Skin</td><td class="sv g">$7.99</td><td>Mid-tier accessible</td></tr>
+<tr><td class="tn">Tower Skin Pack (all towers)</td><td class="sv g">$9.99</td><td>Full maze theme: Infernal, Crystal, Arctic...</td></tr>
+<tr><td class="tn">T3 Unit Variant Skins</td><td class="sv g">$4.99</td><td>Your T3 units look unique to opponent when sent</td></tr>
+<tr><td class="tn">Maze Tile Theme</td><td class="sv g">$5.99</td><td>Visual personalization of your grid</td></tr>
+<tr><td class="tn">Emote Pack (5 emotes)</td><td class="sv g">$3.99</td><td>Psychological warfare tool — high demand</td></tr>
+<tr><td class="tn">Hero Bundle (hero+skin+emote)</td><td class="sv g">$24.99</td><td>Launch event high-value bundle</td></tr>
+</table></div>
+</div>
+<div>
+<h3>Revenue Projections</h3>
+<div class="cb gr"><div class="ct">Conservative — 50k Active Players</div>
+<ul class="bl" style="margin:0;font-size:13px">
+<li>Battle Pass 15% conversion × $9.99 × 6 seasons = $449k/year</li>
+<li>Cosmetic at $5 avg annual spend × 50k = $250k/year</li>
+<li>Tournament entry rake = ~$50k/year</li>
+<li><strong>Total: ~$750k/year at 50k players</strong></li>
+</ul>
+</div>
+<div class="cb" style="margin-top:12px"><div class="ct">Seasonal Cosmetic Themes</div>
+<ul class="bl" style="margin:0;font-size:13px">
+<li>S1: Launch Dark Fantasy (base)</li><li>S2: The Frozen North (Warlord "Frost Berserker")</li>
+<li>S3: Arcane Uprising (Architect "Arcane Weaver")</li><li>S4: The Underworld (Broker "Death Merchant")</li>
+<li>S5: Machines of War (Sentinel "Iron Colossus")</li><li>S6: Shadow Ops (Phantom "Shadow Elite")</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cb r">
+<div class="ct">The Pay-to-Win Promise — Non-Negotiable</div>
+Nothing sold in Maze Dominion affects gameplay, balance, unit stats, tower damage, or win rates. This is not ethics alone — it is business protection. One credible pay-to-win accusation on YouTube or Reddit ends the competitive scene permanently and cannot be undone. The F2P cosmetic model is the only viable path for a game built on skill expression.
+</div>
+</section>
+
+<!-- S16 BALANCE -->
+<section class="sec" id="s16">
+<div class="sh"><span class="sn">16</span><h2>Balance Philosophy</h2></div>
+<p class="lead">Balance is the hardest part of competitive game design. The economy, breach mechanic, unit tier system, and hero abilities create emergent complexity that cannot be fully anticipated in advance.</p>
+<div class="g3">
+<div class="cd"><div class="cn">No Dead Strategies</div><p style="font-size:13px">Every tower, unit tier, hero, and research tree must be viable in some meta context. If something is never built in high-level play, it needs buffing or its role needs clarifying. "Situationally useful" is valid. "Never useful" is not.</p></div>
+<div class="cd"><div class="cn">Counters Not Dominance</div><p style="font-size:13px">No unit should be "always send." No tower should be "always build first." Every strong option must have a clear, accessible counter. Strength should create counterplay options, not helplessness.</p></div>
+<div class="cd"><div class="cn">Economy Before Combat</div><p style="font-size:13px">A unit dealing 500 damage costing 200g generating +1/round income is balanced against a unit dealing 50 damage costing 25g generating +1/round income via economic value per gold, not raw combat stats alone.</p></div>
+</div>
+<h3>WC3 Snowball Problem — Our Complete Solution</h3>
+<div class="cb b">
+<div class="ct">What WC3 Never Fixed</div>
+<p>Falling behind on income at Round 5 in WC3 Tower Wars was effectively a death sentence. Players dropped out mid-match constantly. This killed game retention and player satisfaction. Maze Dominion has four separate comeback paths:</p>
+<ul class="bl" style="font-size:13px">
+<li><strong>Deficit Bonus:</strong> +8g/round when below 5 lives. Mild — never overcomes a skill gap, but provides an economic floor.</li>
+<li><strong>Broker Hero:</strong> Specifically designed as a comeback tool. Emergency Funds (70g instant), Sabotage Income (opponent -40% tick), Black Market (any unit at 50% cost).</li>
+<li><strong>Siege as Economic Reset:</strong> A player far behind can send T2 Destroyer or T3 Annihilator. On success, destroys 200–500g of towers, temporarily erasing an economic lead.</li>
+<li><strong>Research Counter-Picks:</strong> Behind on Destruction research? Invest in Fortification Quick Repair — 100g makes their tower-damage sends recoverable quickly.</li>
+</ul>
+<p style="font-size:13px">Comebacks are hard. They should be — skill matters. But they are always mathematically possible, and that makes every game worth finishing.</p>
+</div>
+<h3>Balance Pipeline</h3>
+<ul class="bl">
+<li><strong>Threshold:</strong> Any unit tier, tower, or hero appearing in 70%+ of winning matches over 1,000 games gets examined.</li>
+<li><strong>Pick rate vs win rate:</strong> Low pick + high win = hidden OP (buff visibility or direct nerf). High pick + low win = trap (buff or clarify role).</li>
+<li><strong>Unit tier balance:</strong> Each tier's gold efficiency (lives stolen or tower damage per gold spent) should be within 15% of comparable tier units at same unlock round.</li>
+<li><strong>Claude API balance loop:</strong> After each beta session, feed match log JSON: "Identify top 3 balance concerns, suggest adjustment ranges with reasoning." Weekly human review of AI suggestions.</li>
+<li><strong>Patch cadence:</strong> Every 6 weeks during active seasons. Max 5 balance changes per non-emergency patch. All changes with public reasoning. No silent nerfs.</li>
+</ul>
+</section>
+
+<!-- FOOTER -->
+<section style="padding:52px 68px;text-align:center;background:var(--dp);border-top:1px solid var(--br)">
+<div class="htag">End of Document</div>
+<h2 style="margin:12px 0;font-size:28px">Maze Dominion</h2>
+<p style="color:var(--td);font-style:italic;max-width:620px;margin:0 auto 24px;font-size:14px">Game Design Document · 16 sections · All systems fully specified. Units have 3 upgrade tiers. WC3 problems solved. All new features designed. The breach mechanic is the game. Everything else serves it.</p>
+<div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--td);letter-spacing:3px">MAZE DOMINION · 2026 · PUBLIC GAME DESIGN DOCUMENT</div>
+</section>
+
+</div><!-- #mn -->
+
+<script>
+const secs=document.querySelectorAll('section[id],div[id]');
+const nis=document.querySelectorAll('a.ni');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      nis.forEach(n=>{n.classList.remove('on');if(n.getAttribute('href')==='#'+e.target.id)n.classList.add('on')});
+    }
+  });
+},{rootMargin:'-15% 0px -70% 0px'});
+secs.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
