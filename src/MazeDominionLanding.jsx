@@ -1,5 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 
+const RECAPTCHA_SITE_KEY = "6Lf3GYssAAAAAKCkJr7dsq0Qj4-McmQ0tVs4p9YD";
+
+const HONEYPOT_STYLE = {
+  position: "absolute", left: "-9999px", top: "-9999px",
+  opacity: 0, height: 0, width: 0, overflow: "hidden",
+  tabIndex: -1, autoComplete: "off",
+};
+
+async function submitForm(formType, data) {
+  const token = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: formType });
+  const res = await fetch("/api/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ formType, recaptchaToken: token, ...data }),
+  });
+  return res.ok;
+}
+
 const TIERS = [
   {
     id: "scout",
@@ -253,12 +271,20 @@ function SupportModal({ tier, onClose, onSubmit }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [custom, setCustom] = useState("");
+  const [honeypot, setHoneypot] = useState("");
 
   if (!tier) return null;
 
-  const handleSubmit = () => {
-    if (!email) return;
+  const handleSubmit = async () => {
+    if (!email || honeypot) return;
+    setSubmitting(true);
+    await submitForm("support", {
+      name, email, message: custom, website: honeypot,
+      tierName: tier.name, tierPrice: tier.price,
+    });
+    setSubmitting(false);
     setSubmitted(true);
     if (onSubmit) onSubmit(tier);
   };
@@ -338,17 +364,22 @@ function SupportModal({ tier, onClose, onSubmit }) {
                 }} />
             </div>
 
-            <button onClick={handleSubmit}
+            {/* Honeypot */}
+            <div style={HONEYPOT_STYLE}>
+              <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)} tabIndex={-1} autoComplete="off" />
+            </div>
+
+            <button onClick={handleSubmit} disabled={submitting}
               style={{
                 width: "100%", padding: "14px",
-                background: email ? tier.color : "#1a1a2e",
-                border: `1px solid ${email ? tier.color : "#2a2a3e"}`,
-                borderRadius: "4px", color: email ? "white" : "#7a7060",
+                background: email && !submitting ? tier.color : "#1a1a2e",
+                border: `1px solid ${email && !submitting ? tier.color : "#2a2a3e"}`,
+                borderRadius: "4px", color: email && !submitting ? "white" : "#7a7060",
                 fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
-                letterSpacing: "4px", textTransform: "uppercase", cursor: email ? "pointer" : "default",
+                letterSpacing: "4px", textTransform: "uppercase", cursor: email && !submitting ? "pointer" : "default",
                 transition: "all 0.2s",
               }}>
-              Submit Interest →
+              {submitting ? "Submitting..." : "Submit Interest →"}
             </button>
 
             <p style={{ color: "#7a7060", fontSize: "16px", marginTop: "14px", textAlign: "center", fontStyle: "italic" }}>
@@ -404,6 +435,26 @@ export default function MazeDominionLanding() {
   const [navScrolled, setNavScrolled] = useState(false);
   const [teamForm, setTeamForm] = useState({ name: "", email: "", role: "", message: "" });
   const [teamSubmitted, setTeamSubmitted] = useState(false);
+  const [teamSubmitting, setTeamSubmitting] = useState(false);
+  const [wishlistSubmitting, setWishlistSubmitting] = useState(false);
+  const [wishlistHoneypot, setWishlistHoneypot] = useState("");
+  const [teamHoneypot, setTeamHoneypot] = useState("");
+
+  const handleWishlistSubmit = async () => {
+    if (!wishlistEmail || wishlistHoneypot) return;
+    setWishlistSubmitting(true);
+    await submitForm("wishlist", { email: wishlistEmail, website: wishlistHoneypot });
+    setWishlistSubmitting(false);
+    setWishlistDone(true);
+  };
+
+  const handleTeamSubmit = async () => {
+    if (!teamForm.name || !teamForm.email || !teamForm.role || teamHoneypot) return;
+    setTeamSubmitting(true);
+    await submitForm("team", { ...teamForm, website: teamHoneypot });
+    setTeamSubmitting(false);
+    setTeamSubmitted(true);
+  };
   const [conquerorSlotsLeft, setConquerorSlotsLeft] = useState(() => {
     const saved = localStorage.getItem("conqueror_slots_left");
     return saved !== null ? parseInt(saved, 10) : 100;
@@ -793,34 +844,41 @@ export default function MazeDominionLanding() {
           </p>
 
           {!wishlistDone ? (
-            <div style={{ display: "flex", gap: "10px" }}>
-              <input
-                value={wishlistEmail}
-                onChange={e => setWishlistEmail(e.target.value)}
-                placeholder="your@email.com"
-                type="email"
-                style={{
-                  flex: 1, padding: "14px 18px",
-                  background: "#13131f", border: `1px solid ${wishlistEmail ? "#c9a84c60" : "#2a2a3e"}`,
-                  borderRadius: "4px 0 0 4px", color: "#d4c9a8",
-                  fontSize: "16px", outline: "none",
-                  transition: "border-color 0.2s",
+            <div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                  value={wishlistEmail}
+                  onChange={e => setWishlistEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  type="email"
+                  style={{
+                    flex: 1, padding: "14px 18px",
+                    background: "#13131f", border: `1px solid ${wishlistEmail ? "#c9a84c60" : "#2a2a3e"}`,
+                    borderRadius: "4px 0 0 4px", color: "#d4c9a8",
+                    fontSize: "16px", outline: "none",
+                    transition: "border-color 0.2s",
+                  }}
+                  onKeyDown={e => { if (e.key === "Enter") handleWishlistSubmit(); }}
+                />
+                <button
+                  onClick={handleWishlistSubmit}
+                  disabled={wishlistSubmitting}
+                  style={{
+                    padding: "14px 24px",
+                    background: wishlistEmail && !wishlistSubmitting ? "#c9a84c" : "#1a1a2e",
+                    border: "none", borderRadius: "0 4px 4px 0",
+                    color: wishlistEmail && !wishlistSubmitting ? "#0a0a0f" : "#7a7060",
+                    fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
+                    letterSpacing: "3px", textTransform: "uppercase",
+                    cursor: wishlistEmail && !wishlistSubmitting ? "pointer" : "default",
+                    transition: "all 0.2s", whiteSpace: "nowrap",
                 }}
-                onKeyDown={e => { if (e.key === "Enter" && wishlistEmail) setWishlistDone(true); }}
-              />
-              <button
-                onClick={() => wishlistEmail && setWishlistDone(true)}
-                style={{
-                  padding: "14px 24px",
-                  background: wishlistEmail ? "#c9a84c" : "#1a1a2e",
-                  border: "none", borderRadius: "0 4px 4px 0",
-                  color: wishlistEmail ? "#0a0a0f" : "#7a7060",
-                  fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
-                  letterSpacing: "3px", textTransform: "uppercase",
-                  cursor: wishlistEmail ? "pointer" : "default",
-                  transition: "all 0.2s", whiteSpace: "nowrap",
-                }}
-              >Join →</button>
+              >{wishlistSubmitting ? "..." : "Join →"}</button>
+              </div>
+              {/* Honeypot */}
+              <div style={HONEYPOT_STYLE}>
+                <input type="text" name="website" value={wishlistHoneypot} onChange={e => setWishlistHoneypot(e.target.value)} tabIndex={-1} autoComplete="off" />
+              </div>
             </div>
           ) : (
             <div style={{
@@ -945,18 +1003,23 @@ export default function MazeDominionLanding() {
                   }} />
               </div>
 
-              <button onClick={() => { if (teamForm.name && teamForm.email && teamForm.role) setTeamSubmitted(true); }}
+              {/* Honeypot */}
+              <div style={HONEYPOT_STYLE}>
+                <input type="text" name="website" value={teamHoneypot} onChange={e => setTeamHoneypot(e.target.value)} tabIndex={-1} autoComplete="off" />
+              </div>
+
+              <button onClick={handleTeamSubmit} disabled={teamSubmitting}
                 style={{
                   width: "100%", padding: "16px",
-                  background: (teamForm.name && teamForm.email && teamForm.role) ? "#4ecdc4" : "#1a1a2e",
-                  border: `1px solid ${(teamForm.name && teamForm.email && teamForm.role) ? "#4ecdc4" : "#2a2a3e"}`,
-                  borderRadius: "4px", color: (teamForm.name && teamForm.email && teamForm.role) ? "#0a0a0f" : "#7a7060",
+                  background: (teamForm.name && teamForm.email && teamForm.role && !teamSubmitting) ? "#4ecdc4" : "#1a1a2e",
+                  border: `1px solid ${(teamForm.name && teamForm.email && teamForm.role && !teamSubmitting) ? "#4ecdc4" : "#2a2a3e"}`,
+                  borderRadius: "4px", color: (teamForm.name && teamForm.email && teamForm.role && !teamSubmitting) ? "#0a0a0f" : "#7a7060",
                   fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
                   letterSpacing: "4px", textTransform: "uppercase",
-                  cursor: (teamForm.name && teamForm.email && teamForm.role) ? "pointer" : "default",
+                  cursor: (teamForm.name && teamForm.email && teamForm.role && !teamSubmitting) ? "pointer" : "default",
                   fontWeight: 700, transition: "all 0.2s",
                 }}>
-                Apply to Join →
+                {teamSubmitting ? "Submitting..." : "Apply to Join →"}
               </button>
 
               <p style={{ color: "#7a5f28", fontSize: "16px", marginTop: "14px", textAlign: "center", fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1px" }}>
