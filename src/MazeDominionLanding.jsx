@@ -27,12 +27,14 @@ const TIERS = [
     color: "#7a8a6a",
     accent: "#a0b485",
     badge: "🪶",
-    tagline: "You believe in the maze.",
+    tagline: "You believe in the maze before it exists.",
     perks: [
-      "Name in game credits (Backer)",
-      "Exclusive Scout Discord role",
-      "Early access to dev updates",
+      "Founding Backer Nameplate — unique gold name color visible to opponents and spectators",
+      "Name in Credits — listed permanently under \"Founding Scouts\"",
+      "Private Dev Newsletter — bi-weekly screenshots, design decisions, patch previews",
+      "Backers-Only Discord Channel — watch development happen in real time",
     ],
+    closing: "This tier closes permanently when Early Access launches.",
     limited: false,
   },
   {
@@ -43,13 +45,15 @@ const TIERS = [
     color: "#c9a84c",
     accent: "#f0d080",
     badge: "🏗️",
-    tagline: "You build. They fall.",
+    tagline: "You helped build it. Now wear it.",
     perks: [
-      "All Scout rewards",
-      "Exclusive Architect hero skin (launch)",
-      "Beta access — play before public",
-      "Architect title in-game",
+      "Everything in Scout",
+      "Exclusive Architect Hero Skin — dark slate robes with glowing blueprint patterns. Never sold in the shop.",
+      "Founding Architect Title — displayed on hero select screen and in every match",
+      "Closed Beta Access — play before public launch, shape the balance",
+      "Name Engraved on an In-Game Wall — a Stone Wall tile in the tutorial map lists all Architect backers",
     ],
+    closing: "This tier closes permanently when Early Access launches.",
     limited: false,
     popular: true,
   },
@@ -61,14 +65,16 @@ const TIERS = [
     color: "#cc2222",
     accent: "#ff6655",
     badge: "⚔️",
-    tagline: "First blood. Last word.",
+    tagline: "First to breach. Last to fall.",
     perks: [
-      "All Architect rewards",
-      "Exclusive Warlord hero skin (launch)",
-      "Exclusive animated tower skin pack",
-      "Your name on a maze tile in-game",
-      "Closed alpha access",
+      "Everything in Architect",
+      "Exclusive Warlord Hero Skin — battle-scorched black armor with ember glow. Never sold in the shop.",
+      "Exclusive Warlord Tower Skin Pack — all 10 towers get a dark iron and ember theme",
+      "Founding Warlord Maze Border — animated red-ember border around your grid, visible to all",
+      "Closed Alpha Access — play before Beta backers with direct influence on development",
+      "30-Minute Design Call — direct video call with the lead developer to give input on mechanics",
     ],
+    closing: "This tier closes permanently when Early Access launches.",
     limited: false,
   },
   {
@@ -79,17 +85,20 @@ const TIERS = [
     color: "#9b59b6",
     accent: "#c27de0",
     badge: "👑",
-    tagline: "Your legacy, built in stone.",
+    tagline: "You didn't just back the game. You're part of it.",
     perks: [
-      "All Warlord rewards",
-      "ALL 5 hero skins at launch",
-      "Exclusive animated Conqueror maze theme",
-      "Name a unit combo (Named Combo System)",
-      "Direct access to dev Discord — talk to the team",
-      "Listed as Founding Patron in credits",
+      "Everything in Warlord",
+      "All 5 Founding Hero Skins — every hero with a founding edition tag. No other player gets this. Ever.",
+      "Executive Producer Credit — your name above the team in the credits",
+      "Permanently Name One In-Game Mechanic — a tower upgrade, round event, or map location. Permanent.",
+      "Custom Conqueror Title In-Game — unique title on leaderboard and spectator view. Never in the shop.",
+      "Lifetime Season 1 & 2 Cosmetics — every cosmetic pack from the first two seasons, free",
+      "Founding Conqueror Digital Art Card — high-quality art card with your name. Limited to 100 ever made.",
     ],
+    closingNote: "We schedule a short call to agree on the name before it's locked into the build. Max 30 characters. Must be appropriate for a general audience.",
+    closing: "Limited to 100 founders. Closes permanently at Early Access launch.",
     limited: true,
-    slots: 100,
+    slots: 87,
   },
 ];
 
@@ -251,6 +260,17 @@ function TierCard({ tier, onSelect, selected, slotsLeft }) {
           </div>
         ))}
       </div>
+
+      {tier.closing && (
+        <div style={{
+          fontSize: "13px", color: "#cc2222", fontFamily: "'Share Tech Mono', monospace",
+          letterSpacing: "1px", textAlign: "center", padding: "10px 0 6px",
+          borderTop: "1px solid rgba(204,34,34,0.2)",
+          marginBottom: "12px",
+        }}>
+          {tier.closing}
+        </div>
+      )}
 
       <button style={{
         width: "100%", padding: "12px",
@@ -457,7 +477,7 @@ export default function MazeDominionLanding() {
   };
   const [conquerorSlotsLeft, setConquerorSlotsLeft] = useState(() => {
     const saved = localStorage.getItem("conqueror_slots_left");
-    return saved !== null ? parseInt(saved, 10) : 100;
+    return saved !== null ? parseInt(saved, 10) : 87;
   });
 
   const decrementConquerorSlots = () => {
