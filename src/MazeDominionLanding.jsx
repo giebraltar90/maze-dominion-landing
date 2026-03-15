@@ -960,7 +960,7 @@ export default function MazeDominionLanding() {
               </button>
 
               <p style={{ color: "#7a5f28", fontSize: "16px", marginTop: "14px", textAlign: "center", fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1px" }}>
-                Passion projects welcome — paid and volunteer roles available.
+                Passion project — all roles are currently volunteer-based.
               </p>
             </div>
           ) : (
