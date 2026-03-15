@@ -820,7 +820,7 @@ export default function MazeDominionLanding() {
           }}>
             <div style={{ fontFamily: "'Cinzel', serif", fontSize: "17px", color: "#c9a84c", marginBottom: "8px" }}>Want to offer your own amount?</div>
             <p style={{ color: "#7a7060", fontSize: "16px", marginBottom: "16px" }}>Click any tier, use the message field, and tell us what you'd like to contribute. We'll respond personally.</p>
-            <button onClick={() => setModalTier(TIERS[1])} style={{
+            <button onClick={() => setModalTier({ id: "custom", name: "Custom", price: "Your Amount", amount: 0, color: "#c9a84c", accent: "#f0d080", badge: "✦" })} style={{
               padding: "12px 32px", background: "transparent",
               border: "1px solid #c9a84c", borderRadius: "3px",
               color: "#c9a84c", fontFamily: "'Share Tech Mono', monospace",
