@@ -402,6 +402,8 @@ export default function MazeDominionLanding() {
   const [wishlistEmail, setWishlistEmail] = useState("");
   const [wishlistDone, setWishlistDone] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
+  const [teamForm, setTeamForm] = useState({ name: "", email: "", role: "", message: "" });
+  const [teamSubmitted, setTeamSubmitted] = useState(false);
   const [conquerorSlotsLeft, setConquerorSlotsLeft] = useState(() => {
     const saved = localStorage.getItem("conqueror_slots_left");
     return saved !== null ? parseInt(saved, 10) : 100;
@@ -461,7 +463,7 @@ export default function MazeDominionLanding() {
           Maze<span style={{ color: "#cc2222" }}>·</span>Dominion
         </div>
         <div style={{ display: "flex", gap: "28px", alignItems: "center" }}>
-          {[["Game", "game"], ["Heroes", "heroes"], ["Support", "support"], ["Wishlist", "wishlist"]].map(([label, id]) => (
+          {[["Game", "game"], ["Heroes", "heroes"], ["Support", "support"], ["Wishlist", "wishlist"], ["Join Us", "join-team"]].map(([label, id]) => (
             <button key={id} onClick={() => scrollTo(id)} style={{
               background: "none", border: "none", color: "#7a7060",
               fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
@@ -834,6 +836,151 @@ export default function MazeDominionLanding() {
           <p style={{ color: "#7a5f28", fontSize: "16px", marginTop: "16px", fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1px" }}>
             Unsubscribe any time. No third parties. No spam.
           </p>
+        </div>
+      </Section>
+
+      {/* JOIN THE TEAM */}
+      <Section id="join-team" style={{
+        padding: "96px 48px",
+        background: "rgba(78,205,196,0.04)",
+        borderTop: "1px solid #1a1a2e",
+      }}>
+        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "4px", textTransform: "uppercase", color: "#4ecdc4", marginBottom: "12px" }}>We Need You</div>
+            <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: "clamp(24px, 3.5vw, 38px)", color: "#f0d080", fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase", marginBottom: "16px" }}>
+              Join the Team
+            </h2>
+            <p style={{ color: "#7a7060", fontSize: "18px", maxWidth: "560px", margin: "0 auto", lineHeight: 1.7 }}>
+              Maze Dominion is built by a small, passionate team. If you have skills that can help — art, code, sound, marketing, community — we want to hear from you.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "12px", marginBottom: "40px" }}>
+            {[
+              { icon: "🎨", title: "Artists", desc: "2D/3D, UI, VFX" },
+              { icon: "💻", title: "Developers", desc: "Unity, C#, Networking" },
+              { icon: "🎵", title: "Audio", desc: "SFX, Music, Voice" },
+              { icon: "📣", title: "Marketing", desc: "Social, Content, PR" },
+              { icon: "🎮", title: "Game Design", desc: "Balance, Systems, UX" },
+              { icon: "🤝", title: "Community", desc: "Discord, Streaming, Mods" },
+            ].map(r => (
+              <div key={r.title} style={{
+                background: "rgba(19,19,31,0.85)", border: "1px solid #2a2a3e",
+                borderRadius: "6px", padding: "20px 16px", textAlign: "center",
+                borderTop: "2px solid #4ecdc4",
+              }}>
+                <div style={{ fontSize: "28px", marginBottom: "8px" }}>{r.icon}</div>
+                <div style={{ fontFamily: "'Cinzel', serif", fontSize: "16px", color: "#4ecdc4", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "4px" }}>{r.title}</div>
+                <div style={{ color: "#7a7060", fontSize: "16px" }}>{r.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {!teamSubmitted ? (
+            <div style={{
+              background: "rgba(19,19,31,0.9)", border: "1px solid #2a2a3e",
+              borderRadius: "8px", padding: "36px",
+            }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
+                <div>
+                  <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "16px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>Your Name *</label>
+                  <input value={teamForm.name} onChange={e => setTeamForm(f => ({ ...f, name: e.target.value }))}
+                    placeholder="Your name"
+                    style={{
+                      width: "100%", padding: "12px 14px",
+                      background: "#13131f", border: `1px solid ${teamForm.name ? "#4ecdc460" : "#2a2a3e"}`,
+                      borderRadius: "4px", color: "#d4c9a8",
+                      fontFamily: "'Crimson Pro', serif", fontSize: "17px",
+                      outline: "none",
+                    }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "16px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>Email *</label>
+                  <input value={teamForm.email} onChange={e => setTeamForm(f => ({ ...f, email: e.target.value }))}
+                    placeholder="your@email.com"
+                    type="email"
+                    style={{
+                      width: "100%", padding: "12px 14px",
+                      background: "#13131f", border: `1px solid ${teamForm.email ? "#4ecdc460" : "#2a2a3e"}`,
+                      borderRadius: "4px", color: "#d4c9a8",
+                      fontFamily: "'Crimson Pro', serif", fontSize: "17px",
+                      outline: "none",
+                    }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "16px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>What role interests you? *</label>
+                <select value={teamForm.role} onChange={e => setTeamForm(f => ({ ...f, role: e.target.value }))}
+                  style={{
+                    width: "100%", padding: "12px 14px",
+                    background: "#13131f", border: `1px solid ${teamForm.role ? "#4ecdc460" : "#2a2a3e"}`,
+                    borderRadius: "4px", color: teamForm.role ? "#d4c9a8" : "#7a7060",
+                    fontFamily: "'Crimson Pro', serif", fontSize: "17px",
+                    outline: "none", cursor: "pointer",
+                  }}>
+                  <option value="">Select a role...</option>
+                  <option value="artist">Artist (2D/3D/UI/VFX)</option>
+                  <option value="developer">Developer (Unity/C#/Networking)</option>
+                  <option value="audio">Audio (SFX/Music/Voice)</option>
+                  <option value="marketing">Marketing (Social/Content/PR)</option>
+                  <option value="game-design">Game Design (Balance/Systems/UX)</option>
+                  <option value="community">Community (Discord/Streaming/Mods)</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: "24px" }}>
+                <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "16px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>Tell us about yourself</label>
+                <textarea value={teamForm.message} onChange={e => setTeamForm(f => ({ ...f, message: e.target.value }))}
+                  placeholder="Your experience, portfolio links, what excites you about Maze Dominion..."
+                  rows={4}
+                  style={{
+                    width: "100%", padding: "12px 14px",
+                    background: "#13131f", border: "1px solid #2a2a3e",
+                    borderRadius: "4px", color: "#d4c9a8",
+                    fontFamily: "'Crimson Pro', serif", fontSize: "17px",
+                    outline: "none", resize: "vertical",
+                  }} />
+              </div>
+
+              <button onClick={() => { if (teamForm.name && teamForm.email && teamForm.role) setTeamSubmitted(true); }}
+                style={{
+                  width: "100%", padding: "16px",
+                  background: (teamForm.name && teamForm.email && teamForm.role) ? "#4ecdc4" : "#1a1a2e",
+                  border: `1px solid ${(teamForm.name && teamForm.email && teamForm.role) ? "#4ecdc4" : "#2a2a3e"}`,
+                  borderRadius: "4px", color: (teamForm.name && teamForm.email && teamForm.role) ? "#0a0a0f" : "#7a7060",
+                  fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
+                  letterSpacing: "4px", textTransform: "uppercase",
+                  cursor: (teamForm.name && teamForm.email && teamForm.role) ? "pointer" : "default",
+                  fontWeight: 700, transition: "all 0.2s",
+                }}>
+                Apply to Join →
+              </button>
+
+              <p style={{ color: "#7a5f28", fontSize: "16px", marginTop: "14px", textAlign: "center", fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1px" }}>
+                Passion projects welcome — paid and volunteer roles available.
+              </p>
+            </div>
+          ) : (
+            <div style={{
+              padding: "40px", background: "rgba(78,205,196,0.08)",
+              border: "1px solid rgba(78,205,196,0.3)", borderRadius: "8px",
+              textAlign: "center",
+            }}>
+              <div style={{ fontSize: "48px", marginBottom: "20px" }}>🤝</div>
+              <div style={{ fontFamily: "'Cinzel', serif", fontSize: "22px", color: "#f0d080", marginBottom: "12px" }}>
+                Application Received!
+              </div>
+              <p style={{ color: "#d4c9a8", fontSize: "17px", lineHeight: 1.7, marginBottom: "8px" }}>
+                Thanks, <strong style={{ color: "#4ecdc4" }}>{teamForm.name}</strong>. We'll review your application and reach out to <strong style={{ color: "#4ecdc4" }}>{teamForm.email}</strong> soon.
+              </p>
+              <p style={{ color: "#7a7060", fontSize: "16px", fontStyle: "italic" }}>
+                The maze needs builders. Welcome aboard.
+              </p>
+            </div>
+          )}
         </div>
       </Section>
 
