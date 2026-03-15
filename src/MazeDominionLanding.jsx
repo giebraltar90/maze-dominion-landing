@@ -4,8 +4,8 @@ const TIERS = [
   {
     id: "scout",
     name: "Scout",
-    price: "$5",
-    amount: 5,
+    price: "$50",
+    amount: 50,
     color: "#7a8a6a",
     accent: "#a0b485",
     badge: "🪶",
@@ -20,8 +20,8 @@ const TIERS = [
   {
     id: "architect",
     name: "Architect",
-    price: "$25",
-    amount: 25,
+    price: "$150",
+    amount: 150,
     color: "#c9a84c",
     accent: "#f0d080",
     badge: "🏗️",
@@ -38,8 +38,8 @@ const TIERS = [
   {
     id: "warlord",
     name: "Warlord",
-    price: "$60",
-    amount: 60,
+    price: "$350",
+    amount: 350,
     color: "#cc2222",
     accent: "#ff6655",
     badge: "⚔️",
@@ -56,8 +56,8 @@ const TIERS = [
   {
     id: "conqueror",
     name: "Conqueror",
-    price: "$150",
-    amount: 150,
+    price: "$750",
+    amount: 750,
     color: "#9b59b6",
     accent: "#c27de0",
     badge: "👑",
@@ -71,8 +71,7 @@ const TIERS = [
       "Listed as Founding Patron in credits",
     ],
     limited: true,
-    slots: 50,
-    slotsLeft: 34,
+    slots: 100,
   },
 ];
 
@@ -160,7 +159,7 @@ function Particles() {
   );
 }
 
-function TierCard({ tier, onSelect, selected }) {
+function TierCard({ tier, onSelect, selected, slotsLeft }) {
   const [hovered, setHovered] = useState(false);
   const active = hovered || selected;
   return (
@@ -183,7 +182,7 @@ function TierCard({ tier, onSelect, selected }) {
         <div style={{
           position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)",
           background: "#c9a84c", color: "#0a0a0f",
-          fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "3px",
+          fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "3px",
           textTransform: "uppercase", padding: "4px 14px", borderRadius: "20px", fontWeight: 700,
           whiteSpace: "nowrap",
         }}>Most Popular</div>
@@ -192,9 +191,9 @@ function TierCard({ tier, onSelect, selected }) {
         <div style={{
           position: "absolute", top: "-12px", right: "16px",
           background: tier.color, color: "white",
-          fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "2px",
+          fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "2px",
           textTransform: "uppercase", padding: "4px 10px", borderRadius: "20px",
-        }}>{tier.slotsLeft} left</div>
+        }}>{slotsLeft} left</div>
       )}
       {/* Top accent line */}
       <div style={{
@@ -211,7 +210,7 @@ function TierCard({ tier, onSelect, selected }) {
         marginBottom: "4px",
       }}>{tier.name}</div>
       <div style={{
-        fontFamily: "'Share Tech Mono', monospace", fontSize: "9px",
+        fontFamily: "'Share Tech Mono', monospace", fontSize: "17px",
         color: "#7a7060", letterSpacing: "2px", textTransform: "uppercase",
         marginBottom: "16px",
       }}>{tier.tagline}</div>
@@ -227,9 +226,9 @@ function TierCard({ tier, onSelect, selected }) {
           <div key={i} style={{
             display: "flex", alignItems: "flex-start", gap: "10px",
             padding: "6px 0", borderBottom: "1px solid rgba(42,42,62,0.5)",
-            fontSize: "13.5px", color: "#d4c9a8",
+            fontSize: "16px", color: "#d4c9a8",
           }}>
-            <span style={{ color: tier.accent, fontSize: "10px", marginTop: "4px", flexShrink: 0 }}>▸</span>
+            <span style={{ color: tier.accent, fontSize: "16px", marginTop: "4px", flexShrink: 0 }}>▸</span>
             {perk}
           </div>
         ))}
@@ -240,7 +239,7 @@ function TierCard({ tier, onSelect, selected }) {
         background: active ? tier.color : "transparent",
         border: `1px solid ${active ? tier.color : "#2a2a3e"}`,
         borderRadius: "4px", color: active ? "white" : "#7a7060",
-        fontFamily: "'Share Tech Mono', monospace", fontSize: "11px",
+        fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
         letterSpacing: "3px", textTransform: "uppercase", cursor: "pointer",
         transition: "all 0.2s",
       }}>
@@ -250,7 +249,7 @@ function TierCard({ tier, onSelect, selected }) {
   );
 }
 
-function SupportModal({ tier, onClose }) {
+function SupportModal({ tier, onClose, onSubmit }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -261,6 +260,7 @@ function SupportModal({ tier, onClose }) {
   const handleSubmit = () => {
     if (!email) return;
     setSubmitted(true);
+    if (onSubmit) onSubmit(tier);
   };
 
   return (
@@ -285,7 +285,7 @@ function SupportModal({ tier, onClose }) {
         {!submitted ? (
           <>
             <div style={{
-              fontFamily: "'Cinzel', serif", fontSize: "11px",
+              fontFamily: "'Cinzel', serif", fontSize: "16px",
               color: tier.accent, letterSpacing: "4px", textTransform: "uppercase",
               marginBottom: "8px",
             }}>Support Maze Dominion</div>
@@ -293,25 +293,25 @@ function SupportModal({ tier, onClose }) {
               fontFamily: "'Cinzel', serif", fontSize: "22px",
               color: "#f0d080", marginBottom: "4px",
             }}>{tier.badge} {tier.name} Tier — {tier.price}</div>
-            <p style={{ color: "#7a7060", fontSize: "14px", marginBottom: "28px", fontStyle: "italic" }}>
+            <p style={{ color: "#7a7060", fontSize: "16px", marginBottom: "28px", fontStyle: "italic" }}>
               Leave your details and we'll reach out with payment instructions and keep you updated on development.
             </p>
 
             <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>Your Name</label>
+              <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>Your Name</label>
               <input value={name} onChange={e => setName(e.target.value)}
                 placeholder="Commander..."
                 style={{
                   width: "100%", padding: "12px 14px",
                   background: "#13131f", border: "1px solid #2a2a3e",
                   borderRadius: "4px", color: "#d4c9a8",
-                  fontFamily: "'Crimson Pro', serif", fontSize: "15px",
+                  fontFamily: "'Crimson Pro', serif", fontSize: "17px",
                   outline: "none",
                 }} />
             </div>
 
             <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>Email Address *</label>
+              <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>Email Address *</label>
               <input value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 type="email"
@@ -319,13 +319,13 @@ function SupportModal({ tier, onClose }) {
                   width: "100%", padding: "12px 14px",
                   background: "#13131f", border: `1px solid ${email ? tier.accent+"60" : "#2a2a3e"}`,
                   borderRadius: "4px", color: "#d4c9a8",
-                  fontFamily: "'Crimson Pro', serif", fontSize: "15px",
+                  fontFamily: "'Crimson Pro', serif", fontSize: "17px",
                   outline: "none",
                 }} />
             </div>
 
             <div style={{ marginBottom: "24px" }}>
-              <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>Message (optional)</label>
+              <label style={{ display: "block", fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a7060", marginBottom: "6px" }}>Message (optional)</label>
               <textarea value={custom} onChange={e => setCustom(e.target.value)}
                 placeholder="Any questions, custom amount offer, or just a war cry..."
                 rows={3}
@@ -333,7 +333,7 @@ function SupportModal({ tier, onClose }) {
                   width: "100%", padding: "12px 14px",
                   background: "#13131f", border: "1px solid #2a2a3e",
                   borderRadius: "4px", color: "#d4c9a8",
-                  fontFamily: "'Crimson Pro', serif", fontSize: "15px",
+                  fontFamily: "'Crimson Pro', serif", fontSize: "17px",
                   outline: "none", resize: "vertical",
                 }} />
             </div>
@@ -344,14 +344,14 @@ function SupportModal({ tier, onClose }) {
                 background: email ? tier.color : "#1a1a2e",
                 border: `1px solid ${email ? tier.color : "#2a2a3e"}`,
                 borderRadius: "4px", color: email ? "white" : "#7a7060",
-                fontFamily: "'Share Tech Mono', monospace", fontSize: "11px",
+                fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
                 letterSpacing: "4px", textTransform: "uppercase", cursor: email ? "pointer" : "default",
                 transition: "all 0.2s",
               }}>
               Submit Interest →
             </button>
 
-            <p style={{ color: "#7a7060", fontSize: "12px", marginTop: "14px", textAlign: "center", fontStyle: "italic" }}>
+            <p style={{ color: "#7a7060", fontSize: "16px", marginTop: "14px", textAlign: "center", fontStyle: "italic" }}>
               No payment yet — we'll contact you directly with next steps.
             </p>
           </>
@@ -361,10 +361,10 @@ function SupportModal({ tier, onClose }) {
             <div style={{ fontFamily: "'Cinzel', serif", fontSize: "22px", color: "#f0d080", marginBottom: "12px" }}>
               Welcome, {tier.name}.
             </div>
-            <p style={{ color: "#d4c9a8", fontSize: "15px", lineHeight: 1.7, marginBottom: "24px" }}>
+            <p style={{ color: "#d4c9a8", fontSize: "17px", lineHeight: 1.7, marginBottom: "24px" }}>
               Your interest has been recorded. We'll reach out to <strong style={{ color: tier.accent }}>{email}</strong> with payment details and your first dev update shortly.
             </p>
-            <p style={{ color: "#7a7060", fontSize: "13px", fontStyle: "italic" }}>
+            <p style={{ color: "#7a7060", fontSize: "17px", fontStyle: "italic" }}>
               The maze awaits. The breach is coming.
             </p>
           </div>
@@ -402,6 +402,18 @@ export default function MazeDominionLanding() {
   const [wishlistEmail, setWishlistEmail] = useState("");
   const [wishlistDone, setWishlistDone] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
+  const [conquerorSlotsLeft, setConquerorSlotsLeft] = useState(() => {
+    const saved = localStorage.getItem("conqueror_slots_left");
+    return saved !== null ? parseInt(saved, 10) : 100;
+  });
+
+  const decrementConquerorSlots = () => {
+    setConquerorSlotsLeft(prev => {
+      const next = Math.max(0, prev - 1);
+      localStorage.setItem("conqueror_slots_left", next);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const handler = () => setNavScrolled(window.scrollY > 60);
@@ -416,7 +428,7 @@ export default function MazeDominionLanding() {
   return (
     <div style={{
       background: "#0a0a0f", minHeight: "100vh", color: "#d4c9a8",
-      fontFamily: "'Crimson Pro', serif", fontSize: "17px", lineHeight: "1.7",
+      fontFamily: "'Crimson Pro', serif", fontSize: "19px", lineHeight: "1.7",
       overflowX: "hidden", position: "relative",
     }}>
       <style>{`
@@ -452,7 +464,7 @@ export default function MazeDominionLanding() {
           {[["Game", "game"], ["Heroes", "heroes"], ["Support", "support"], ["Wishlist", "wishlist"]].map(([label, id]) => (
             <button key={id} onClick={() => scrollTo(id)} style={{
               background: "none", border: "none", color: "#7a7060",
-              fontFamily: "'Share Tech Mono', monospace", fontSize: "10px",
+              fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
               letterSpacing: "3px", textTransform: "uppercase", cursor: "pointer",
               transition: "color 0.2s",
             }}
@@ -464,7 +476,7 @@ export default function MazeDominionLanding() {
             padding: "8px 20px",
             background: "transparent", border: "1px solid #c9a84c",
             borderRadius: "3px", color: "#c9a84c",
-            fontFamily: "'Share Tech Mono', monospace", fontSize: "9px",
+            fontFamily: "'Share Tech Mono', monospace", fontSize: "17px",
             letterSpacing: "3px", textTransform: "uppercase", cursor: "pointer",
             transition: "all 0.2s",
           }}
@@ -482,7 +494,7 @@ export default function MazeDominionLanding() {
         background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139,26,26,0.18) 0%, transparent 70%)",
       }}>
         <div style={{
-          fontFamily: "'Share Tech Mono', monospace", fontSize: "10px",
+          fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
           letterSpacing: "5px", color: "#c9a84c", textTransform: "uppercase",
           marginBottom: "20px", animation: "heroReveal 1s ease forwards",
           opacity: 0, animationDelay: "0.2s",
@@ -534,7 +546,7 @@ export default function MazeDominionLanding() {
             padding: "16px 40px",
             background: "#c9a84c", border: "none",
             borderRadius: "3px", color: "#0a0a0f",
-            fontFamily: "'Share Tech Mono', monospace", fontSize: "11px",
+            fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
             letterSpacing: "4px", textTransform: "uppercase", cursor: "pointer",
             fontWeight: 700,
             boxShadow: "0 0 30px rgba(201,168,76,0.3)",
@@ -547,7 +559,7 @@ export default function MazeDominionLanding() {
             padding: "16px 40px",
             background: "transparent", border: "1px solid #2a2a3e",
             borderRadius: "3px", color: "#7a7060",
-            fontFamily: "'Share Tech Mono', monospace", fontSize: "11px",
+            fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
             letterSpacing: "4px", textTransform: "uppercase", cursor: "pointer",
             transition: "all 0.2s",
           }}
@@ -566,7 +578,7 @@ export default function MazeDominionLanding() {
           {[["F2P", "Free to Play"], ["5", "Playable Heroes"], ["3", "Unit Tiers Each"], ["18", "GDD Sections"], ["4v4", "Lane Conquest"]].map(([val, label]) => (
             <div key={label} style={{ textAlign: "center" }}>
               <div style={{ fontFamily: "'Cinzel', serif", fontSize: "28px", fontWeight: 900, color: "#c9a84c", lineHeight: 1 }}>{val}</div>
-              <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#7a7060", marginTop: "4px" }}>{label}</div>
+              <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "16px", letterSpacing: "2px", textTransform: "uppercase", color: "#7a7060", marginTop: "4px" }}>{label}</div>
             </div>
           ))}
         </div>
@@ -579,7 +591,7 @@ export default function MazeDominionLanding() {
         borderTop: "1px solid #1a1a2e", borderBottom: "1px solid #1a1a2e",
       }}>
         <div style={{ maxWidth: "900px", margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#cc2222", marginBottom: "16px" }}>The Core Innovation</div>
+          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "4px", textTransform: "uppercase", color: "#cc2222", marginBottom: "16px" }}>The Core Innovation</div>
           <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: "clamp(28px, 4vw, 48px)", color: "#f0d080", lineHeight: 1.2, marginBottom: "24px", fontWeight: 600 }}>
             Units Don't Walk Around Walls.<br />They Destroy Them.
           </h2>
@@ -597,9 +609,9 @@ export default function MazeDominionLanding() {
               ["The Result", "Blocking is now a tactic, not an exploit", "⚔️ New meta every game"],
             ].map(([title, desc, tag]) => (
               <div key={title} style={{ padding: "24px 20px", background: "#0f0f1a", textAlign: "center" }}>
-                <div style={{ fontFamily: "'Cinzel', serif", fontSize: "13px", color: "#c9a84c", marginBottom: "8px", letterSpacing: "1px" }}>{title}</div>
-                <div style={{ fontSize: "13px", color: "#7a7060", marginBottom: "10px", lineHeight: 1.5 }}>{desc}</div>
-                <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", color: "#d4c9a8", letterSpacing: "2px" }}>{tag}</div>
+                <div style={{ fontFamily: "'Cinzel', serif", fontSize: "17px", color: "#c9a84c", marginBottom: "8px", letterSpacing: "1px" }}>{title}</div>
+                <div style={{ fontSize: "17px", color: "#7a7060", marginBottom: "10px", lineHeight: 1.5 }}>{desc}</div>
+                <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", color: "#d4c9a8", letterSpacing: "2px" }}>{tag}</div>
               </div>
             ))}
           </div>
@@ -610,7 +622,7 @@ export default function MazeDominionLanding() {
       <Section id="game" style={{ padding: "96px 48px" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>What Makes It Different</div>
+            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>What Makes It Different</div>
             <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: "clamp(24px, 3.5vw, 38px)", color: "#f0d080", fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase" }}>Core Features</h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px" }}>
@@ -626,8 +638,8 @@ export default function MazeDominionLanding() {
               >
                 <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, #7a5f28, transparent)" }} />
                 <div style={{ fontSize: "28px", marginBottom: "12px" }}>{f.icon}</div>
-                <div style={{ fontFamily: "'Cinzel', serif", fontSize: "15px", color: "#c9a84c", letterSpacing: "2px", marginBottom: "10px", textTransform: "uppercase" }}>{f.title}</div>
-                <p style={{ color: "#7a7060", fontSize: "14.5px", lineHeight: 1.6 }}>{f.desc}</p>
+                <div style={{ fontFamily: "'Cinzel', serif", fontSize: "17px", color: "#c9a84c", letterSpacing: "2px", marginBottom: "10px", textTransform: "uppercase" }}>{f.title}</div>
+                <p style={{ color: "#7a7060", fontSize: "16px", lineHeight: 1.6 }}>{f.desc}</p>
               </div>
             ))}
           </div>
@@ -637,7 +649,7 @@ export default function MazeDominionLanding() {
       {/* GAME MODES */}
       <Section style={{ padding: "80px 48px", background: "rgba(15,15,26,0.6)", borderTop: "1px solid #1a1a2e" }}>
         <div style={{ maxWidth: "900px", margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>Four Ways to Play</div>
+          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>Four Ways to Play</div>
           <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: "clamp(22px, 3vw, 34px)", color: "#f0d080", fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase", marginBottom: "44px" }}>Game Modes</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
             {GAME_MODES.map((m, i) => (
@@ -646,8 +658,8 @@ export default function MazeDominionLanding() {
                 border: "1px solid #2a2a3e", borderRadius: "6px",
               }}>
                 <div style={{ fontSize: "32px", marginBottom: "12px" }}>{m.icon}</div>
-                <div style={{ fontFamily: "'Cinzel', serif", fontSize: "14px", color: "#c9a84c", letterSpacing: "2px", marginBottom: "8px", textTransform: "uppercase" }}>{m.name}</div>
-                <div style={{ color: "#7a7060", fontSize: "13px" }}>{m.desc}</div>
+                <div style={{ fontFamily: "'Cinzel', serif", fontSize: "16px", color: "#c9a84c", letterSpacing: "2px", marginBottom: "8px", textTransform: "uppercase" }}>{m.name}</div>
+                <div style={{ color: "#7a7060", fontSize: "17px" }}>{m.desc}</div>
               </div>
             ))}
           </div>
@@ -658,7 +670,7 @@ export default function MazeDominionLanding() {
       <Section id="heroes" style={{ padding: "96px 48px" }}>
         <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>Choose Your Commander</div>
+            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>Choose Your Commander</div>
             <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: "clamp(22px, 3vw, 34px)", color: "#f0d080", fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase", marginBottom: "16px" }}>5 Heroes, 5 Playstyles</h2>
             <p style={{ color: "#7a7060", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>Each hero lives physically in your maze — they can be attacked, they level up mid-match, and they define your entire macro strategy.</p>
           </div>
@@ -680,9 +692,9 @@ export default function MazeDominionLanding() {
                 onMouseLeave={e => { e.currentTarget.style.borderColor = "#2a2a3e"; e.currentTarget.style.background = "rgba(19,19,31,0.85)"; }}
               >
                 <div style={{ fontSize: "28px", marginBottom: "10px" }}>{h.icon}</div>
-                <div style={{ fontFamily: "'Cinzel', serif", fontSize: "12px", color: h.color, letterSpacing: "1px", marginBottom: "4px", textTransform: "uppercase" }}>{h.name}</div>
-                <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "8px", letterSpacing: "2px", color: "#7a7060", textTransform: "uppercase", marginBottom: "10px" }}>{h.role}</div>
-                <div style={{ color: "#7a7060", fontSize: "12.5px", lineHeight: 1.5 }}>{h.desc}</div>
+                <div style={{ fontFamily: "'Cinzel', serif", fontSize: "16px", color: h.color, letterSpacing: "1px", marginBottom: "4px", textTransform: "uppercase" }}>{h.name}</div>
+                <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "16px", letterSpacing: "2px", color: "#7a7060", textTransform: "uppercase", marginBottom: "10px" }}>{h.role}</div>
+                <div style={{ color: "#7a7060", fontSize: "17px", lineHeight: 1.5 }}>{h.desc}</div>
               </div>
             ))}
           </div>
@@ -697,12 +709,12 @@ export default function MazeDominionLanding() {
       }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "20px" }}>
-            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>Help Us Build This</div>
+            <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>Help Us Build This</div>
             <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: "clamp(24px, 3.5vw, 40px)", color: "#f0d080", fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase", marginBottom: "16px" }}>Support Tiers</h2>
             <p style={{ color: "#7a7060", fontSize: "16px", maxWidth: "600px", margin: "0 auto 12px" }}>
               Every supporter helps build the game. In return, you get exclusive skins, early access, and your name in the credits. No payment is taken until we reach out personally.
             </p>
-            <p style={{ color: "#7a5f28", fontSize: "13px", fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1px" }}>
+            <p style={{ color: "#7a5f28", fontSize: "17px", fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1px" }}>
               Custom offer? Use the message field in any tier — we'll work something out.
             </p>
           </div>
@@ -714,6 +726,7 @@ export default function MazeDominionLanding() {
                 tier={tier}
                 selected={selectedTier?.id === tier.id}
                 onSelect={(t) => { setSelectedTier(t); setModalTier(t); }}
+                slotsLeft={tier.id === "conqueror" ? conquerorSlotsLeft : undefined}
               />
             ))}
           </div>
@@ -723,13 +736,13 @@ export default function MazeDominionLanding() {
             padding: "28px", background: "rgba(19,19,31,0.6)",
             border: "1px solid #2a2a3e", borderRadius: "6px",
           }}>
-            <div style={{ fontFamily: "'Cinzel', serif", fontSize: "15px", color: "#c9a84c", marginBottom: "8px" }}>Want to offer your own amount?</div>
-            <p style={{ color: "#7a7060", fontSize: "14px", marginBottom: "16px" }}>Click any tier, use the message field, and tell us what you'd like to contribute. We'll respond personally.</p>
+            <div style={{ fontFamily: "'Cinzel', serif", fontSize: "17px", color: "#c9a84c", marginBottom: "8px" }}>Want to offer your own amount?</div>
+            <p style={{ color: "#7a7060", fontSize: "16px", marginBottom: "16px" }}>Click any tier, use the message field, and tell us what you'd like to contribute. We'll respond personally.</p>
             <button onClick={() => setModalTier(TIERS[1])} style={{
               padding: "12px 32px", background: "transparent",
               border: "1px solid #c9a84c", borderRadius: "3px",
               color: "#c9a84c", fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "10px", letterSpacing: "3px", textTransform: "uppercase",
+              fontSize: "16px", letterSpacing: "3px", textTransform: "uppercase",
               cursor: "pointer", transition: "all 0.2s",
             }}
               onMouseEnter={e => { e.target.style.background = "#c9a84c"; e.target.style.color = "#0a0a0f"; }}
@@ -746,17 +759,17 @@ export default function MazeDominionLanding() {
         borderTop: "1px solid #1a1a2e",
       }}>
         <div style={{ maxWidth: "900px", margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#4ecdc4", marginBottom: "16px" }}>Built on a Legacy</div>
+          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "4px", textTransform: "uppercase", color: "#4ecdc4", marginBottom: "16px" }}>Built on a Legacy</div>
           <h3 style={{ fontFamily: "'Cinzel', serif", fontSize: "22px", color: "#f0d080", marginBottom: "20px", fontWeight: 400, fontStyle: "italic" }}>
             "The spiritual successor to WC3 Line Tower Wars —<br />the competitive format that launched a thousand games."
           </h3>
-          <p style={{ color: "#7a7060", fontSize: "15px", maxWidth: "680px", margin: "0 auto 32px", lineHeight: 1.7 }}>
+          <p style={{ color: "#7a7060", fontSize: "17px", maxWidth: "680px", margin: "0 auto 32px", lineHeight: 1.7 }}>
             We took everything that made the WC3 tower defense maps legendary — income sends, life-stealing, maze-building — and fixed every flaw: no more anti-cheat NPC, no more brutal snowballing, no more "it's a mod so it died." Maze Dominion is standalone, on Steam, with heroes, unit upgrade tiers, and the breach mechanic that changes everything.
           </p>
           <div style={{ display: "flex", gap: "32px", justifyContent: "center", flexWrap: "wrap" }}>
             {["No Anti-Cheat NPC", "3 Unit Tiers", "5 Heroes", "Draft Mode", "Named Combos", "Match Replay"].map(tag => (
               <div key={tag} style={{
-                fontFamily: "'Share Tech Mono', monospace", fontSize: "9px",
+                fontFamily: "'Share Tech Mono', monospace", fontSize: "17px",
                 letterSpacing: "2px", textTransform: "uppercase",
                 color: "#4ecdc4", padding: "6px 14px",
                 border: "1px solid rgba(78,205,196,0.2)", borderRadius: "3px",
@@ -769,7 +782,7 @@ export default function MazeDominionLanding() {
       {/* WISHLIST */}
       <Section id="wishlist" style={{ padding: "96px 48px" }}>
         <div style={{ maxWidth: "560px", margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>Stay in the Loop</div>
+          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", letterSpacing: "4px", textTransform: "uppercase", color: "#c9a84c", marginBottom: "12px" }}>Stay in the Loop</div>
           <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: "clamp(24px, 3.5vw, 38px)", color: "#f0d080", fontWeight: 600, letterSpacing: "3px", textTransform: "uppercase", marginBottom: "16px" }}>
             Join the Wishlist
           </h2>
@@ -800,7 +813,7 @@ export default function MazeDominionLanding() {
                   background: wishlistEmail ? "#c9a84c" : "#1a1a2e",
                   border: "none", borderRadius: "0 4px 4px 0",
                   color: wishlistEmail ? "#0a0a0f" : "#7a7060",
-                  fontFamily: "'Share Tech Mono', monospace", fontSize: "10px",
+                  fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
                   letterSpacing: "3px", textTransform: "uppercase",
                   cursor: wishlistEmail ? "pointer" : "default",
                   transition: "all 0.2s", whiteSpace: "nowrap",
@@ -814,11 +827,11 @@ export default function MazeDominionLanding() {
             }}>
               <div style={{ fontSize: "36px", marginBottom: "12px" }}>⚔️</div>
               <div style={{ fontFamily: "'Cinzel', serif", fontSize: "18px", color: "#f0d080", marginBottom: "8px" }}>You're on the list.</div>
-              <p style={{ color: "#7a7060", fontSize: "14px" }}>We'll reach out to <strong style={{ color: "#c9a84c" }}>{wishlistEmail}</strong> when the gates open.</p>
+              <p style={{ color: "#7a7060", fontSize: "16px" }}>We'll reach out to <strong style={{ color: "#c9a84c" }}>{wishlistEmail}</strong> when the gates open.</p>
             </div>
           )}
 
-          <p style={{ color: "#7a5f28", fontSize: "12px", marginTop: "16px", fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1px" }}>
+          <p style={{ color: "#7a5f28", fontSize: "16px", marginTop: "16px", fontFamily: "'Share Tech Mono', monospace", letterSpacing: "1px" }}>
             Unsubscribe any time. No third parties. No spam.
           </p>
         </div>
@@ -832,10 +845,10 @@ export default function MazeDominionLanding() {
         flexWrap: "wrap", gap: "20px",
       }}>
         <div>
-          <div style={{ fontFamily: "'Cinzel', serif", fontSize: "15px", fontWeight: 900, color: "#c9a84c", letterSpacing: "4px", textTransform: "uppercase", marginBottom: "4px" }}>
+          <div style={{ fontFamily: "'Cinzel', serif", fontSize: "17px", fontWeight: 900, color: "#c9a84c", letterSpacing: "4px", textTransform: "uppercase", marginBottom: "4px" }}>
             Maze Dominion
           </div>
-          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", color: "#7a7060", letterSpacing: "2px" }}>
+          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", color: "#7a7060", letterSpacing: "2px" }}>
             Currently in Development · Pre-Alpha
           </div>
         </div>
@@ -843,7 +856,7 @@ export default function MazeDominionLanding() {
           {["Discord", "Twitter/X", "Contact"].map(link => (
             <a key={link} href="#" style={{
               color: "#7a7060", textDecoration: "none",
-              fontFamily: "'Share Tech Mono', monospace", fontSize: "9px",
+              fontFamily: "'Share Tech Mono', monospace", fontSize: "17px",
               letterSpacing: "2px", textTransform: "uppercase",
               transition: "color 0.2s",
             }}
@@ -852,14 +865,14 @@ export default function MazeDominionLanding() {
             >{link}</a>
           ))}
         </div>
-        <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "9px", color: "#7a5f28", letterSpacing: "2px" }}>
+        <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "17px", color: "#7a5f28", letterSpacing: "2px" }}>
           © 2026 Maze Dominion · All Rights Reserved
         </div>
       </footer>
 
       {/* MODAL */}
       {modalTier && (
-        <SupportModal tier={modalTier} onClose={() => setModalTier(null)} />
+        <SupportModal tier={modalTier} onClose={() => setModalTier(null)} onSubmit={(t) => { if (t.id === "conqueror") decrementConquerorSlots(); }} />
       )}
     </div>
   );
