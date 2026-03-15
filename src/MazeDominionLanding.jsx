@@ -80,8 +80,8 @@ const TIERS = [
   {
     id: "conqueror",
     name: "Conqueror",
-    price: "$750",
-    amount: 750,
+    price: "$1,000",
+    amount: 1000,
     color: "#9b59b6",
     accent: "#c27de0",
     badge: "👑",
