@@ -622,17 +622,31 @@ export default function MazeDominionLanding() {
           animation: "heroReveal 1s ease forwards", opacity: 0,
           animationDelay: "1s",
         }}>
-          <button onClick={() => scrollTo("support")} style={{
+          <a href="https://maze-dominion-game.vercel.app" target="_blank" rel="noopener noreferrer" style={{
             padding: "16px 40px",
             background: "#c9a84c", border: "none",
             borderRadius: "3px", color: "#0a0a0f",
             fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
             letterSpacing: "4px", textTransform: "uppercase", cursor: "pointer",
-            fontWeight: 700,
+            fontWeight: 700, textDecoration: "none", display: "inline-block",
             boxShadow: "0 0 30px rgba(201,168,76,0.3)",
             animation: "pulse-ring 2.5s ease-in-out infinite",
             transition: "all 0.2s",
           }}>
+            Play the Free Prototype
+          </a>
+          <button onClick={() => scrollTo("support")} style={{
+            padding: "16px 40px",
+            background: "transparent", border: "1px solid #c9a84c",
+            borderRadius: "3px", color: "#c9a84c",
+            fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
+            letterSpacing: "4px", textTransform: "uppercase", cursor: "pointer",
+            fontWeight: 700,
+            transition: "all 0.2s",
+          }}
+            onMouseEnter={e => { e.target.style.background = "rgba(201,168,76,0.12)"; }}
+            onMouseLeave={e => { e.target.style.background = "transparent"; }}
+          >
             Support the Game
           </button>
           <button onClick={() => scrollTo("wishlist")} style={{
