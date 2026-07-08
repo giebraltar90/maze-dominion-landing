@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maze Dominion — Development Updates</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a0f; color:#b8b0a0; font-family:'Share Tech Mono', monospace; line-height:1.7; }
+  .wrap { max-width:860px; margin:0 auto; padding:60px 24px 120px; }
+  a { color:#c9a84c; }
+  h1 { font-family:'Cinzel', serif; color:#c9a84c; font-size:34px; letter-spacing:4px; text-transform:uppercase; margin-bottom:8px; }
+  .sub { color:#7a7060; margin-bottom:48px; font-size:14px; }
+  .rel { border:1px solid #1a1a2e; border-left:3px solid #c9a84c; border-radius:4px; background:#0e0e16; padding:26px 30px; margin-bottom:28px; }
+  .rel h2 { font-family:'Cinzel', serif; color:#e8d9a0; font-size:20px; letter-spacing:2px; margin-bottom:2px; }
+  .rel .date { color:#7a7060; font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; }
+  .rel ul { list-style:none; }
+  .rel li { padding:4px 0 4px 22px; position:relative; font-size:14.5px; }
+  .rel li::before { content:"◆"; position:absolute; left:0; color:#c9a84c; font-size:10px; top:9px; }
+  .tag { display:inline-block; font-size:10px; letter-spacing:2px; padding:2px 8px; border-radius:3px; margin-left:10px; vertical-align:2px; text-transform:uppercase; }
+  .tag.big { background:rgba(204,34,34,0.15); color:#e05555; border:1px solid rgba(204,34,34,0.4); }
+  .tag.live { background:rgba(80,200,120,0.12); color:#6fd897; border:1px solid rgba(80,200,120,0.35); }
+  .back { display:inline-block; margin-bottom:36px; color:#7a7060; text-decoration:none; font-size:13px; letter-spacing:2px; text-transform:uppercase; }
+  .back:hover { color:#c9a84c; }
+  .play { display:inline-block; margin-top:10px; padding:10px 26px; border:1px solid #c9a84c; border-radius:3px; color:#c9a84c; text-decoration:none; letter-spacing:3px; text-transform:uppercase; font-size:14px; }
+  .play:hover { background:#c9a84c; color:#0a0a0f; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; Back to Maze Dominion</a>
+  <h1>Development Updates</h1>
+  <p class="sub">Every change to the free prototype, documented as we build toward Steam.
+    <a class="play" href="https://maze-dominion-game.vercel.app">Play the prototype</a></p>
+
+  <div class="rel">
+    <h2>Warbands &amp; Battle Doctrine <span class="tag big">Major</span></h2>
+    <div class="date">July 8, 2026 · V4.4</div>
+    <ul>
+      <li><b>Warband decks:</b> in the waiting room you now choose your hero AND the 4 units you take into battle. Your send bar, hotkeys (Q/W/E/R) and strategy follow your pick. Bots bring themed warbands of their own.</li>
+      <li><b>Damage &amp; armor types:</b> arrows (Piercing) shred Unarmored and Light warbands but glance off Heavy plate and Fortified stone; cannons (Siege) crack armor but overkill nothing light; frost magic bites through Heavy plate. Every tooltip shows the matchup.</li>
+      <li><b>New tower art:</b> all five towers were repainted with distinct silhouettes — you can read a maze at a glance now.</li>
+      <li>Anti-air Flak Tower is finally visible on the field (it was shy).</li>
+    </ul>
+  </div>
+
+  <div class="rel">
+    <h2>Heroes of the Dominion <span class="tag live">Live</span></h2>
+    <div class="date">July 8, 2026 · V4.3</div>
+    <ul>
+      <li><b>Online PvP is live:</b> host a room, send a friend the 4-letter code, they join from anywhere in the world. Deterministic lockstep keeps both battles perfectly in sync.</li>
+      <li><b>The world has names now:</b> Baldrik Stonehand the Architect, Karvok the Ash-Crowned the Warlord, and the warbands of the Dominion — Copperfoot Couriers, Gnarlfist Breachers, Broodlings, Ruin Golems, Grimspire Gargoyles, Moonshade Shamans. Lore lines in every tooltip.</li>
+      <li>Heroes walk with painted 4-frame stride animations and strike a glowing spell-cast pose on every cast.</li>
+      <li>WC3-style edge scrolling: zoom in, push your cursor to the screen edge, the camera follows.</li>
+      <li>A cleaner command panel: one info strip per card, hover-reveal tier upgrades, research rows with tier pips.</li>
+    </ul>
+  </div>
+
+  <div class="rel">
+    <h2>The Lobby Grows <span class="tag big">Major</span></h2>
+    <div class="date">July 8, 2026 · V4.2</div>
+    <ul>
+      <li><b>New game modes:</b> 2v2 (with a bot ally), Free-for-all with 4 players, and the classic 8-player Free-for-all — your sends march on the next living enemy, last banner standing wins.</li>
+      <li>Watch any lane: the side panel follows your current target, or click any player in the standings to spectate them.</li>
+      <li>Eliminated players' mazes freeze; the battle rages on without them.</li>
+    </ul>
+  </div>
+
+  <div class="rel">
+    <h2>Marching Orders <span class="tag live">Live</span></h2>
+    <div class="date">July 8, 2026 · V4.1</div>
+    <ul>
+      <li>Painted 4-frame walk cycles for Runners, Breachers, Ruin Golems and Broodlings — with footstep dust.</li>
+      <li>Spell effects: Instant Wall erupts from the ground, Fortify radiates golden runes, Overcharge wreathes the tower in lightning, Airstrike paints a red warning before the fireball lands.</li>
+      <li>Under the hood: the whole simulation became deterministic and mirror-symmetric — the foundation online PvP runs on.</li>
+    </ul>
+  </div>
+
+  <div class="rel">
+    <h2>Command &amp; Conquer the Interface</h2>
+    <div class="date">July 8, 2026 · V4.0</div>
+    <ul>
+      <li>Your hero and builder now muster at your home base, in front of the Undergate.</li>
+      <li>WC3 group control: drag a selection box or shift-click to command hero and builder together; F1/F2/F3 select them instantly.</li>
+      <li>Fixed a bug where upgrade, sell and hero-spell buttons silently ate clicks.</li>
+      <li>Unit tier upgrades (Tier I/II/III), Elo-style ranked ladder vs the bot, boss waves, comeback gold, the arena look, painted hero art, sound — the whole V3.6–V3.9 arc is documented in the <a href="/gdd.html">GDD</a>.</li>
+    </ul>
+  </div>
+
+  <p class="sub" style="margin-top:40px">Older milestones (prototype origins, the breach mechanic, continuous LTW flow, the isometric arena) live in the <a href="/gdd.html">Game Design Document</a>.</p>
+</div>
+</body>
+</html>

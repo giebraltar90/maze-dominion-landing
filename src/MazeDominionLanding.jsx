@@ -552,6 +552,15 @@ export default function MazeDominionLanding() {
             onMouseEnter={e => e.target.style.color = "#c9a84c"}
             onMouseLeave={e => e.target.style.color = "#7a7060"}
           >GDD</a>
+          <a href="/updates.html" style={{
+            color: "#7a7060", textDecoration: "none",
+            fontFamily: "'Share Tech Mono', monospace", fontSize: "16px",
+            letterSpacing: "3px", textTransform: "uppercase", cursor: "pointer",
+            transition: "color 0.2s",
+          }}
+            onMouseEnter={e => e.target.style.color = "#c9a84c"}
+            onMouseLeave={e => e.target.style.color = "#7a7060"}
+          >Updates</a>
           <button onClick={() => scrollTo("support")} style={{
             padding: "8px 20px",
             background: "transparent", border: "1px solid #c9a84c",
